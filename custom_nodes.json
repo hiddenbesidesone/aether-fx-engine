@@ -1,0 +1,37 @@
+[
+  {
+    "name": "ComfyUI-Manager",
+    "url": "https://github.com/ltdrdata/ComfyUI-Manager.git",
+    "description": "Essential UI tool for managing and updating nodes/models."
+  },
+  {
+    "name": "ComfyUI-VideoHelperSuite",
+    "url": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git",
+    "description": "Core nodes for loading, manipulating, and combining video frames."
+  },
+  {
+    "name": "ComfyUI-AnimateDiff-Evolved",
+    "url": "https://github.com/Kosinkadink/ComfyUI-AnimateDiff-Evolved.git",
+    "description": "Required for temporal consistency and motion modules."
+  },
+  {
+    "name": "ComfyUI-Advanced-ControlNet",
+    "url": "https://github.com/Kosinkadink/ComfyUI-Advanced-ControlNet.git",
+    "description": "Required for chaining Depth and Canny edge passes."
+  },
+  {
+    "name": "ComfyUI-DepthAnythingV2",
+    "url": "https://github.com/kijai/ComfyUI-DepthAnythingV2.git",
+    "description": "Generates high-quality depth maps directly inside the node graph."
+  },
+  {
+    "name": "ComfyUI_Yvann-Nodes",
+    "url": "https://github.com/YvannCeline/ComfyUI_Yvann-Nodes.git",
+    "description": "Audio processing nodes for beat-synced mutation."
+  },
+  {
+    "name": "ComfyUI_FizzNodes",
+    "url": "https://github.com/FizzleDorf/ComfyUI_FizzNodes.git",
+    "description": "Batch prompt scheduling for timeline-based prompt travel."
+  }
+]

@@ -1,0 +1,28 @@
+# Byte-compiled / Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+
+# ComfyUI Media & Model files (NEVER commit these)
+*.safetensors
+*.ckpt
+*.pt
+*.bin
+*.onnx
+*.pth
+*.pth.tar
+
+# Output and temp files
+/output/
+/temp/
+/input/
+*.mp4
+*.mov
+*.png
+*.jpg
+
+# OS / Environment
+.DS_Store
+.env
