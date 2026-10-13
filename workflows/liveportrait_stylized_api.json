@@ -1,0 +1,165 @@
+{
+    "1": {
+        "inputs": {
+            "mode": "human",
+            "precision": "fp16"
+        },
+        "class_type": "DownloadAndLoadLivePortraitModels"
+    },
+    "2": {
+        "inputs": {
+            "onnx_device": "CUDA",
+            "keep_model_loaded": true,
+            "detection_threshold": 0.5
+        },
+        "class_type": "LivePortraitLoadCropper"
+    },
+    "3": {
+        "inputs": {
+            "image": "source_doll.png"
+        },
+        "class_type": "LoadImage"
+    },
+    "4": {
+        "inputs": {
+            "video": "driving_monologue.mp4",
+            "force_rate": 0,
+            "custom_fps": 30,
+            "frame_load_cap": 0,
+            "skip_first_frames": 0,
+            "select_every_nth": 1
+        },
+        "class_type": "VHS_LoadVideo"
+    },
+    "5": {
+        "inputs": {
+            "dsize": 512,
+            "scale": 2.45,
+            "vx_ratio": 0.0,
+            "vy_ratio": -0.12,
+            "face_index": 0,
+            "face_index_order": "large-small",
+            "rotate": true,
+            "pipeline": [
+                "1",
+                0
+            ],
+            "cropper": [
+                "2",
+                0
+            ],
+            "source_image": [
+                "3",
+                0
+            ]
+        },
+        "class_type": "LivePortraitCropper"
+    },
+    "6": {
+        "inputs": {
+            "dsize": 512,
+            "scale": 2.2,
+            "vx_ratio": 0.0,
+            "vy_ratio": -0.12,
+            "face_index": 0,
+            "face_index_order": "large-small",
+            "rotate": true,
+            "pipeline": [
+                "1",
+                0
+            ],
+            "cropper": [
+                "2",
+                0
+            ],
+            "source_image": [
+                "4",
+                0
+            ]
+        },
+        "class_type": "LivePortraitCropper"
+    },
+    "7": {
+        "inputs": {
+            "eye_retargeting": true,
+            "eyes_retargeting_multiplier": 1.0,
+            "lip_retargeting": true,
+            "lip_retargeting_multiplier": 1.0,
+            "driving_crop_info": [
+                "6",
+                1
+            ]
+        },
+        "class_type": "LivePortraitRetargeting"
+    },
+    "8": {
+        "inputs": {
+            "lip_zero": false,
+            "lip_zero_threshold": 0.03,
+            "stitching": true,
+            "delta_multiplier": 1.0,
+            "mismatch_method": "constant",
+            "relative_motion_mode": "source_video_smoothed",
+            "driving_smooth_observation_variance": 0.000003,
+            "expression_friendly": true,
+            "pipeline": [
+                "1",
+                0
+            ],
+            "crop_info": [
+                "5",
+                1
+            ],
+            "source_image": [
+                "5",
+                0
+            ],
+            "driving_images": [
+                "6",
+                0
+            ],
+            "opt_retargeting_info": [
+                "7",
+                0
+            ]
+        },
+        "class_type": "LivePortraitProcess"
+    },
+    "9": {
+        "inputs": {
+            "source_image": [
+                "3",
+                0
+            ],
+            "cropped_image": [
+                "8",
+                0
+            ],
+            "liveportrait_out": [
+                "8",
+                1
+            ]
+        },
+        "class_type": "LivePortraitComposite"
+    },
+    "10": {
+        "inputs": {
+            "frame_rate": 30.0,
+            "loop_count": 0,
+            "filename_prefix": "AetherFX_Stylized_Performance",
+            "format": "video/h264-mp4",
+            "pix_fmt": "yuv420p",
+            "crf": 18,
+            "save_output": true,
+            "images": [
+                "9",
+                0
+            ],
+            "audio": [
+                "4",
+                2
+            ]
+        },
+        "class_type": "VHS_VideoCombine"
+    }
+}
