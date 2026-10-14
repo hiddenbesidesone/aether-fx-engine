@@ -24,7 +24,9 @@
         "inputs": {
             "video": "driving_monologue.mp4",
             "force_rate": 0,
-            "custom_fps": 30,
+            "force_size": "Disabled",
+            "custom_width": 512,
+            "custom_height": 512,
             "frame_load_cap": 0,
             "skip_first_frames": 0,
             "select_every_nth": 1
@@ -151,6 +153,7 @@
             "pix_fmt": "yuv420p",
             "crf": 18,
             "save_output": true,
+            "pingpong": false,
             "images": [
                 "9",
                 0
