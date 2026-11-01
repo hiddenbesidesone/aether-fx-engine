@@ -33,5 +33,25 @@
     "name": "ComfyUI_FizzNodes",
     "url": "https://github.com/FizzleDorf/ComfyUI_FizzNodes.git",
     "description": "Batch prompt scheduling for timeline-based prompt travel."
+  },
+  {
+    "name": "ComfyUI-RMBG",
+    "url": "https://github.com/1038lab/ComfyUI-RMBG.git",
+    "description": "BiRefNet background removal (BiRefNetRMBG) for image-to-3D inputs."
+  },
+  {
+    "name": "ComfyUI-IF_Trellis",
+    "url": "https://github.com/if-ai/ComfyUI-IF_Trellis.git",
+    "description": "TRELLIS image-to-3D (CUDA only: spconv, flash-attn)."
+  },
+  {
+    "name": "ComfyUI-Hunyuan3DWrapper",
+    "url": "https://github.com/kijai/ComfyUI-Hunyuan3DWrapper.git",
+    "description": "Hunyuan3D-2 image-to-3D mesh generation and GLB export."
+  },
+  {
+    "name": "ComfyUI_IPAdapter_plus",
+    "url": "https://github.com/cubiq/ComfyUI_IPAdapter_plus.git",
+    "description": "IP-Adapter conditioning for the brand stylizer."
   }
 ]

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aether-fx-engine"
+version = "0.2.0"
+description = "ComfyUI orchestration for 3D kitbash, brand stylization and Blender-driven video diffusion"
+readme = "README.md"
+# numpy 1.26 has no wheels for Python 3.13+.
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "numpy>=1.26.0,<2.0.0",
+    "Pillow>=10.0.0",
+    "requests>=2.31.0",
+    "websocket-client>=1.6.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+# OpenEXR depth/normal passes from Blender.
+exr = ["opencv-python-headless>=4.8.0,<4.12"]
+dev = ["pytest>=8.0", "aiohttp>=3.9"]
+
+[project.scripts]
+aether-env-check = "aether_engine.env_check:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

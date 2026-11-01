@@ -1,0 +1,96 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "aether_input.png"
+    },
+    "_meta": {
+      "title": "source_image"
+    }
+  },
+  "2": {
+    "class_type": "BiRefNetRMBG",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "model": "BiRefNet-general",
+      "sensitivity": 1.0,
+      "mask_blur": 0,
+      "mask_offset": 0,
+      "invert_output": false,
+      "refine_foreground": true,
+      "unload_model": false,
+      "background": "Alpha",
+      "background_color": "#222222"
+    },
+    "_meta": {
+      "title": "remove_background"
+    }
+  },
+  "3": {
+    "class_type": "IF_TrellisCheckpointLoader",
+    "inputs": {
+      "model_name": "TRELLIS-image-large",
+      "dinov2_model": "dinov2_vitl14_reg",
+      "use_fp16": true,
+      "attn_backend": "flash_attn",
+      "sparse_backend": "spconv",
+      "spconv_algo": "implicit_gemm",
+      "smooth_k": true
+    },
+    "_meta": {
+      "title": "trellis_loader"
+    }
+  },
+  "4": {
+    "class_type": "IF_TrellisImageTo3D",
+    "inputs": {
+      "model": [
+        "3",
+        0
+      ],
+      "mode": "single",
+      "images": [
+        "2",
+        0
+      ],
+      "masks": [
+        "2",
+        1
+      ],
+      "seed": 0,
+      "ss_guidance_strength": 7.5,
+      "ss_sampling_steps": 25,
+      "slat_guidance_strength": 3.0,
+      "slat_sampling_steps": 20,
+      "mesh_simplify": 0.95,
+      "texture_size": 1024,
+      "texture_mode": "fast",
+      "fps": 15,
+      "multimode": "stochastic",
+      "project_name": "aether_3d",
+      "save_glb": true,
+      "render_video": false,
+      "save_gaussian": false,
+      "save_texture": false,
+      "save_wireframe": false
+    },
+    "_meta": {
+      "title": "trellis"
+    }
+  },
+  "5": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "mesh_path"
+    }
+  }
+}

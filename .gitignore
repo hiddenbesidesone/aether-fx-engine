@@ -26,3 +26,4 @@ env/
 # OS / Environment
 .DS_Store
 .env
+/exports/

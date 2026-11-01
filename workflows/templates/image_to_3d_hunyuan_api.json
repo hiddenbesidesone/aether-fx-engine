@@ -1,0 +1,131 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "aether_input.png"
+    },
+    "_meta": {
+      "title": "source_image"
+    }
+  },
+  "2": {
+    "class_type": "BiRefNetRMBG",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "model": "BiRefNet-general",
+      "sensitivity": 1.0,
+      "mask_blur": 0,
+      "mask_offset": 0,
+      "invert_output": false,
+      "refine_foreground": true,
+      "unload_model": false,
+      "background": "Color",
+      "background_color": "#FFFFFF"
+    },
+    "_meta": {
+      "title": "remove_background"
+    }
+  },
+  "3": {
+    "class_type": "Hy3DModelLoader",
+    "inputs": {
+      "model": "hunyuan3d-dit-v2-0-fp16.safetensors",
+      "attention_mode": "sdpa",
+      "cublas_ops": false
+    },
+    "_meta": {
+      "title": "hunyuan_loader"
+    }
+  },
+  "4": {
+    "class_type": "Hy3DGenerateMesh",
+    "inputs": {
+      "pipeline": [
+        "3",
+        0
+      ],
+      "image": [
+        "2",
+        0
+      ],
+      "guidance_scale": 5.5,
+      "steps": 30,
+      "seed": 0,
+      "scheduler": "FlowMatchEulerDiscreteScheduler",
+      "force_offload": true
+    },
+    "_meta": {
+      "title": "hunyuan"
+    }
+  },
+  "5": {
+    "class_type": "Hy3DVAEDecode",
+    "inputs": {
+      "vae": [
+        "3",
+        1
+      ],
+      "latents": [
+        "4",
+        0
+      ],
+      "box_v": 1.01,
+      "octree_resolution": 384,
+      "num_chunks": 8000,
+      "mc_level": 0.0,
+      "mc_algo": "mc",
+      "enable_flash_vdm": true,
+      "force_offload": true
+    },
+    "_meta": {
+      "title": "hunyuan_decode"
+    }
+  },
+  "6": {
+    "class_type": "Hy3DPostprocessMesh",
+    "inputs": {
+      "trimesh": [
+        "5",
+        0
+      ],
+      "remove_floaters": true,
+      "remove_degenerate_faces": true,
+      "reduce_faces": true,
+      "max_facenum": 40000,
+      "smooth_normals": false
+    },
+    "_meta": {
+      "title": "postprocess"
+    }
+  },
+  "7": {
+    "class_type": "Hy3DExportMesh",
+    "inputs": {
+      "trimesh": [
+        "6",
+        0
+      ],
+      "filename_prefix": "3D/aether",
+      "file_format": "glb",
+      "save_file": true
+    },
+    "_meta": {
+      "title": "save_mesh"
+    }
+  },
+  "8": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "mesh_path"
+    }
+  }
+}

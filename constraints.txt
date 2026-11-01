@@ -1,0 +1,4 @@
+# Applied to every pip install on the GPU box via PIP_CONSTRAINT (see scripts/deploy_cloud.sh).
+# torch 2.8, onnxruntime-gpu 1.26 and insightface are built against the NumPy 1.x C-API;
+# numpy 2.x (e.g. pulled in by rembg) breaks them with `_ARRAY_API not found` import errors.
+numpy>=1.26.0,<2.0.0
