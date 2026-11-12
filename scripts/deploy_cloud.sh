@@ -5,7 +5,7 @@ echo "=== 1. Installing System Dependencies ==="
 apt-get update && apt-get install -y \
     git \
     ffmpeg \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     jq \
     curl
@@ -33,21 +33,21 @@ pip install "numpy>=1.26.0,<2.0.0"
 pip install -r requirements.txt
 
 echo "=== 4. Auto-Installing Custom Nodes from Manifest ==="
+# safe_node_install.sh drops torch/onnxruntime lines from each node's requirements and pins the
+# installed GPU stack; entries with an "installer" (e.g. TRELLIS) use their own script instead.
+export COMFY_DIR="${WORKSPACE_DIR}/ComfyUI" VENV="${WORKSPACE_DIR}/ComfyUI/venv"
 MANIFEST_PATH="${REPO_DIR}/custom_nodes.json"
 if [ -f "$MANIFEST_PATH" ]; then
-    cd custom_nodes
     jq -c '.[]' "$MANIFEST_PATH" | while read -r node; do
         URL=$(echo "$node" | jq -r '.url')
         NAME=$(echo "$node" | jq -r '.name')
-        if [ ! -d "$NAME" ]; then
-            echo "Cloning custom node: $NAME"
-            git clone "$URL" "$NAME"
-            if [ -f "$NAME/requirements.txt" ]; then
-                pip install -r "$NAME/requirements.txt"
-            fi
+        INSTALLER=$(echo "$node" | jq -r '.installer // empty')
+        if [ -n "$INSTALLER" ]; then
+            bash "${REPO_DIR}/${INSTALLER}" || echo "[!] ${NAME}: ${INSTALLER} failed; continuing"
+        else
+            bash "${REPO_DIR}/scripts/runpod/safe_node_install.sh" "$NAME" "$URL"
         fi
     done
-    cd ..
 fi
 
 echo "=== 5. Validating Environment ==="

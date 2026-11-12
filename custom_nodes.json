@@ -26,7 +26,7 @@
   },
   {
     "name": "ComfyUI_Yvann-Nodes",
-    "url": "https://github.com/YvannCeline/ComfyUI_Yvann-Nodes.git",
+    "url": "https://github.com/yvann-ba/ComfyUI_Yvann-Nodes.git",
     "description": "Audio processing nodes for beat-synced mutation."
   },
   {
@@ -42,7 +42,8 @@
   {
     "name": "ComfyUI-IF_Trellis",
     "url": "https://github.com/if-ai/ComfyUI-IF_Trellis.git",
-    "description": "TRELLIS image-to-3D (CUDA only: spconv, flash-attn)."
+    "description": "TRELLIS image-to-3D mesh + Gaussian splat (CUDA only). Installed by its own script: the node's requirements.txt targets torch 2.5 and pulls CPU onnxruntime.",
+    "installer": "scripts/runpod/install_trellis.sh"
   },
   {
     "name": "ComfyUI-Hunyuan3DWrapper",
@@ -53,5 +54,25 @@
     "name": "ComfyUI_IPAdapter_plus",
     "url": "https://github.com/cubiq/ComfyUI_IPAdapter_plus.git",
     "description": "IP-Adapter conditioning for the brand stylizer."
+  },
+  {
+    "name": "ComfyUI-KJNodes",
+    "url": "https://github.com/kijai/ComfyUI-KJNodes.git",
+    "description": "Utility nodes used by the Yvann audio-reactive example workflows."
+  },
+  {
+    "name": "audio-separation-nodes-comfyui",
+    "url": "https://github.com/christian-byrne/audio-separation-nodes-comfyui.git",
+    "description": "Demucs stem separation (bass / drums / other / vocals)."
+  },
+  {
+    "name": "ComfyUI-MusicGen-HF",
+    "url": "https://github.com/ebrinz/ComfyUI-MusicGen-HF.git",
+    "description": "Meta MusicGen text-to-music (Hugging Face transformers)."
+  },
+  {
+    "name": "ComfyUI-MMAudio",
+    "url": "https://github.com/kijai/ComfyUI-MMAudio.git",
+    "description": "Video-to-audio Foley / ambience (MMAudio)."
   }
 ]

@@ -1,0 +1,136 @@
+{
+  "1": {
+    "class_type": "VHS_LoadVideo",
+    "inputs": {
+      "video": "aether_input.mp4",
+      "force_rate": 0,
+      "custom_width": 0,
+      "custom_height": 0,
+      "frame_load_cap": 0,
+      "skip_first_frames": 0,
+      "select_every_nth": 1
+    },
+    "_meta": {
+      "title": "source_video"
+    }
+  },
+  "2": {
+    "class_type": "VHS_VideoInfo",
+    "inputs": {
+      "video_info": [
+        "1",
+        3
+      ]
+    },
+    "_meta": {
+      "title": "source_info"
+    }
+  },
+  "3": {
+    "class_type": "VHS_LoadVideo",
+    "inputs": {
+      "video": "aether_input.mp4",
+      "force_rate": 25,
+      "custom_width": 0,
+      "custom_height": 384,
+      "frame_load_cap": 0,
+      "skip_first_frames": 0,
+      "select_every_nth": 1
+    },
+    "_meta": {
+      "title": "video_25fps"
+    }
+  },
+  "4": {
+    "class_type": "MMAudioModelLoader",
+    "inputs": {
+      "mmaudio_model": "mmaudio_large_44k_v2_fp16.safetensors",
+      "base_precision": "fp16"
+    },
+    "_meta": {
+      "title": "mmaudio_model"
+    }
+  },
+  "5": {
+    "class_type": "MMAudioFeatureUtilsLoader",
+    "inputs": {
+      "vae_model": "mmaudio_vae_44k_fp16.safetensors",
+      "synchformer_model": "mmaudio_synchformer_fp16.safetensors",
+      "clip_model": "apple_DFN5B-CLIP-ViT-H-14-384_fp16.safetensors",
+      "mode": "44k",
+      "precision": "fp16"
+    },
+    "_meta": {
+      "title": "mmaudio_features"
+    }
+  },
+  "6": {
+    "class_type": "MMAudioSampler",
+    "inputs": {
+      "mmaudio_model": [
+        "4",
+        0
+      ],
+      "feature_utils": [
+        "5",
+        0
+      ],
+      "duration": 8.0,
+      "steps": 25,
+      "cfg": 4.5,
+      "seed": 0,
+      "prompt": "",
+      "negative_prompt": "music, speech, talking",
+      "mask_away_clip": false,
+      "force_offload": true,
+      "images": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "foley"
+    }
+  },
+  "7": {
+    "class_type": "SaveAudio",
+    "inputs": {
+      "audio": [
+        "6",
+        0
+      ],
+      "filename_prefix": "AetherFX/foley/aether"
+    },
+    "_meta": {
+      "title": "save_audio"
+    }
+  },
+  "8": {
+    "class_type": "VHS_VideoCombine",
+    "inputs": {
+      "images": [
+        "1",
+        0
+      ],
+      "audio": [
+        "6",
+        0
+      ],
+      "frame_rate": [
+        "2",
+        0
+      ],
+      "loop_count": 0,
+      "filename_prefix": "AetherFX/foley/aether",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 19,
+      "save_metadata": true,
+      "pingpong": false,
+      "save_output": true
+    },
+    "_meta": {
+      "title": "video_out"
+    }
+  }
+}

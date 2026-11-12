@@ -1,0 +1,44 @@
+{
+  "1": {
+    "class_type": "HuggingFaceMusicGen",
+    "inputs": {
+      "model_size": "medium",
+      "duration": 30.0,
+      "guidance_scale": 3.0,
+      "do_sample": true,
+      "max_new_tokens": 1503,
+      "seed": 0,
+      "prompt": "hard-hitting trap beat, 140 BPM, 808 bass, rolling hi-hats",
+      "temperature": 1.0,
+      "duration_override": 0.0
+    },
+    "_meta": {
+      "title": "musicgen"
+    }
+  },
+  "2": {
+    "class_type": "SaveAudio",
+    "inputs": {
+      "audio": [
+        "1",
+        0
+      ],
+      "filename_prefix": "AetherFX/audio/aether"
+    },
+    "_meta": {
+      "title": "save_audio"
+    }
+  },
+  "3": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "1",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "musicgen_info"
+    }
+  }
+}

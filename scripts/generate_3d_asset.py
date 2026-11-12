@@ -25,12 +25,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from aether_engine.cli import (CLIError, add_common_args, dump_payload, execute, in_range, make_client,  # noqa: E402
                                preflight, require_cuda_server, require_file, resolve_seed)
-from aether_engine.payload_builder import WorkflowTemplate  # noqa: E402
+from aether_engine.payload_builder import WorkflowTemplate, combo_options  # noqa: E402
 from aether_engine.utils.file_transfer import collect_outputs, job_tag, move_to, upload_as  # noqa: E402
 from aether_engine.utils.image_tools import prepare_3d_input  # noqa: E402
 
 TEMPLATES = {"trellis": "image_to_3d_api.json", "hunyuan": "image_to_3d_hunyuan_api.json"}
 MESH_SUFFIXES = (".glb", ".gltf", ".obj")  # .ply here is the splat, fetched separately
+# The loader's combos list only backends installed on the server; first available wins.
+LOADER_BACKENDS = {"attn_backend": ("flash_attn", "xformers", "sdpa"), "sparse_backend": ("spconv", "torchsparse")}
 
 
 def parse_args(argv=None) -> argparse.Namespace:
@@ -111,6 +113,8 @@ def main(argv=None) -> int:
         image_name = upload_as(client, staged, staged.name, Path(tmp))
 
     wf = build(args, image_name, tag, seed)
+    if args.engine == "trellis":
+        match_trellis_backends(wf, client.object_info())
     preflight(client, wf, args)
     outputs = "splat" if args.splat_only else "mesh + splat" if args.export_splat else "mesh"
     detail = f" texture={args.texture_mode}" if args.engine == "trellis" and not args.splat_only else ""
@@ -132,6 +136,16 @@ def main(argv=None) -> int:
     if splat:
         print(f"[✓] splat {move_to(splat, base.with_name(base.name + '.ply'))}")
     return 0
+
+
+def match_trellis_backends(wf: WorkflowTemplate, object_info: dict) -> None:
+    """Pick loader backends the server offers. The real choice is SPARSE_ATTN_BACKEND / SPCONV_ALGO,
+    read when ComfyUI starts (scripts/runpod/start_comfy.sh); this only keeps the payload valid."""
+    spec = object_info.get("IF_TrellisCheckpointLoader", {}).get("input", {}).get("required", {})
+    for key, preferred in LOADER_BACKENDS.items():
+        options = combo_options(spec.get(key)) or []
+        if options and wf.node("trellis_loader")["inputs"][key] not in options:
+            wf.set("trellis_loader", **{key: next((b for b in preferred if b in options), options[0])})
 
 
 def download_splat(client, tag: str, dest_dir: Path) -> Path:

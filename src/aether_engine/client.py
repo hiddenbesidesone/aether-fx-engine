@@ -23,7 +23,8 @@ DEFAULT_URL = "http://127.0.0.1:8188"
 
 # Output keys ComfyUI nodes use for file results in /history ("gifs" is VHS_VideoCombine).
 FILE_OUTPUT_KEYS = ("images", "gifs", "videos", "audio", "3d", "meshes")
-FILE_SUFFIXES = (".glb", ".gltf", ".obj", ".ply", ".stl", ".mp4", ".webm", ".mov", ".gif", ".png", ".jpg", ".webp")
+FILE_SUFFIXES = (".glb", ".gltf", ".obj", ".ply", ".stl", ".mp4", ".webm", ".mov", ".gif", ".png", ".jpg", ".webp",
+                 ".flac", ".wav", ".mp3", ".opus")
 
 
 class ComfyError(RuntimeError):

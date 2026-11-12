@@ -16,7 +16,7 @@ TEMPLATES_DIR = Path(__file__).resolve().parents[2] / "workflows" / "templates"
 
 # Inputs the server validates by file existence rather than its combo list
 # (LoadImage only lists top-level input files, but accepts "subfolder/name").
-DYNAMIC_COMBOS = {("LoadImage", "image")}
+DYNAMIC_COMBOS = {("LoadImage", "image"), ("LoadAudio", "audio"), ("VHS_LoadVideo", "video")}
 
 
 class PayloadError(ValueError):
@@ -162,7 +162,7 @@ class WorkflowTemplate:
             for key, value in node["inputs"].items():
                 if is_link(value) or key not in all_inputs or (cls, key) in DYNAMIC_COMBOS:
                     continue
-                options = _combo_options(all_inputs[key])
+                options = combo_options(all_inputs[key])
                 if options is not None and value not in options:
                     shown = ", ".join(map(str, options[:8])) + (" ..." if len(options) > 8 else "")
                     problems.append(f"[{title}] {key}={value!r} not available on server (have: {shown or 'none'})")
@@ -176,7 +176,7 @@ class WorkflowTemplate:
         Path(path).write_text(json.dumps(self.graph, indent=2) + "\n")
 
 
-def _combo_options(spec: Any) -> list | None:
+def combo_options(spec: Any) -> list | None:
     """Extract the allowed values for a combo input in either /object_info format."""
     if not isinstance(spec, (list, tuple)) or not spec:
         return None

@@ -11,15 +11,18 @@ from pathlib import Path
 from aiohttp import WSMsgType, web
 
 TEMPLATES = Path(__file__).resolve().parents[1] / "workflows" / "templates"
-FREE_TEXT_INPUTS = {"text", "project_name", "filename_prefix", "background_color"}
+FREE_TEXT_INPUTS = {"text", "project_name", "filename_prefix", "background_color", "prompt", "negative_prompt"}
 
 
 def object_info_from_templates() -> dict:
     """Fake /object_info that accepts every class/input/value used by the templates."""
     info: dict = {}
+    always_used: dict[str, set] = {}  # inputs every template node of a class sets count as required
     for path in TEMPLATES.glob("*.json"):
         for node in json.loads(path.read_text()).values():
             entry = info.setdefault(node["class_type"], {"input": {"required": {}, "optional": {}}})
+            keys = set(node["inputs"])
+            always_used[node["class_type"]] = always_used.get(node["class_type"], keys) & keys
             for key, value in node["inputs"].items():
                 if isinstance(value, str) and key not in FREE_TEXT_INPUTS:
                     spec = entry["input"]["required"].setdefault(key, [[]])
@@ -27,8 +30,13 @@ def object_info_from_templates() -> dict:
                         spec[0].append(value)
                 else:
                     entry["input"]["required"].setdefault(key, ["ANY", {}])
+    for cls, entry in info.items():
+        req = entry["input"]["required"]
+        for key in [k for k in req if k not in always_used[cls]]:
+            entry["input"]["optional"][key] = req.pop(key)
     # Combo choices from IF_Trellis.py that the template only uses one of.
     info["IF_TrellisImageTo3D"]["input"]["required"]["texture_mode"] = [["blank", "fast", "opt"]]
+    info["HuggingFaceMusicGen"]["input"]["required"]["model_size"] = [["small", "medium", "large"]]
     info["LoraLoader"] = {"input": {"required": {
         "model": ["MODEL"], "clip": ["CLIP"], "lora_name": [["latex_vinyl_v2.safetensors", "gloss.safetensors"]],
         "strength_model": ["FLOAT", {}], "strength_clip": ["FLOAT", {}]}}}
@@ -47,6 +55,7 @@ class MockComfy:
         self.files: dict[tuple[str, str], bytes] = {}
         self.fail_with: dict | None = None
         self.reject_with: dict | None = None
+        self.musicgen_info = "Generated 30.00s of audio"
         self.object_info = object_info_from_templates()
         self.sockets: list[web.WebSocketResponse] = []
         self.loop = asyncio.new_event_loop()
@@ -157,9 +166,15 @@ class MockComfy:
                 outputs[nid] = {"images": imgs}
             elif cls == "VHS_VideoCombine":
                 sub, _, pre = inp["filename_prefix"].rpartition("/")
-                self.files[(sub, f"{pre}_00001.mp4")] = b"mp4"
-                outputs[nid] = {"gifs": [{"filename": f"{pre}_00001.mp4", "subfolder": sub, "type": "output",
+                name = f"{pre}_00001" + ("-audio" if "audio" in inp else "") + ".mp4"
+                self.files[(sub, name)] = b"mp4"
+                outputs[nid] = {"gifs": [{"filename": name, "subfolder": sub, "type": "output",
                                           "format": "video/h264-mp4"}]}
+            elif cls == "SaveAudio":
+                sub, _, pre = inp["filename_prefix"].rpartition("/")
+                name = f"{pre}_00001_.flac"
+                self.files[(sub, name)] = b"fLaC"
+                outputs[nid] = {"audio": [{"filename": name, "subfolder": sub, "type": "output"}]}
             elif cls == "IF_TrellisImageTo3D":
                 # Like the real node: the .ply is written to disk but never reported in history.
                 proj = inp["project_name"]
@@ -178,6 +193,8 @@ class MockComfy:
                     outputs[nid] = {"text": [f"{proj}/{proj}.glb"]}
                 elif src["class_type"] == "Hy3DExportMesh":
                     outputs[nid] = {"text": [self._hy_path]}
+                elif src["class_type"] == "HuggingFaceMusicGen":
+                    outputs[nid] = {"text": [self.musicgen_info]}
         return outputs
 
     async def broadcast(self, msg):
