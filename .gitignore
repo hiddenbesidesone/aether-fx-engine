@@ -27,3 +27,6 @@ env/
 .DS_Store
 .env
 /exports/
+
+# Local editable-install metadata
+*.egg-info/

@@ -14,7 +14,7 @@ ComfyUI-based VFX pipeline: audio-reactive visuals, video warping, and 3D/depth 
 | `scripts/run_api_job.py` | Queue an API workflow, wait, and download outputs |
 | `src/aether_engine/` | Python package: ComfyUI client, template payload builder, env check, image/file utils |
 | `workflows/templates/` | API templates driven by the CLIs below (nodes addressed by title) |
-| `scripts/generate_3d_asset.py` | Concept image → `.glb` (TRELLIS or Hunyuan3D-2) |
+| `scripts/generate_3d_asset.py` | Concept image → `.glb` mesh (TRELLIS or Hunyuan3D-2) and/or Gaussian splat `.ply` (TRELLIS) |
 | `scripts/render_blender_video.py` | Blender depth/normal passes → ControlNet AnimateDiff MP4 |
 | `scripts/run_brand_stylizer.py` | Batch SDXL restyle: LoRA stack + IP-Adapter + depth ControlNet |
 
@@ -64,6 +64,10 @@ model files. `--dry-run --dump-payload out.json` builds the payload without a se
 python scripts/generate_3d_asset.py --image ./inputs/doll_head.png --engine trellis \
     --steps 25 --output-dir ./exports/3d/
 
+# + Gaussian splat for Blender (SkySplat); --splat-only skips the .glb texture bake and download
+python scripts/generate_3d_asset.py --image ./inputs/dollface_isolated.png --engine trellis \
+    --export-splat --texture-mode opt --output-dir ./exports/3d/
+
 python scripts/render_blender_video.py --depth-frames ./blender_out/depth/ \
     --normal-frames ./blender_out/normal/ --prompt "cinematic 90s vinyl doll, neon water splash" \
     --frames 120 --fps 24 --output ./exports/video/previz_shot_01.mp4
@@ -75,6 +79,9 @@ python scripts/run_brand_stylizer.py --input-dir ./inputs/concepts/ \
 ```
 
 - **TRELLIS is CUDA-only** (spconv / flash-attn); pointed at a Mac/MPS server it exits and asks for the RunPod URL.
+- **Splats:** `--export-splat` downloads `<image>_trellis_<seed>.ply` next to the `.glb`. `--texture-mode`
+  (`fast` / `opt`) only changes the `.glb` texture bake, not the splat. The node doesn't report the `.ply`
+  in `/history`, so the CLI fetches it from `output/<job>/<job>.ply`.
 - Depth passes can be 16-bit PNG, 8-bit PNG or EXR. They are normalised over the whole sequence and
   inverted to near = white (`--no-invert-depth` if already converted). `--normal-frames` is optional.
 - Model filenames default to common names (`dreamshaper_8`, `v3_sd15_mm.ckpt`, `sd_xl_base_1.0`, …);

@@ -27,6 +27,8 @@ def object_info_from_templates() -> dict:
                         spec[0].append(value)
                 else:
                     entry["input"]["required"].setdefault(key, ["ANY", {}])
+    # Combo choices from IF_Trellis.py that the template only uses one of.
+    info["IF_TrellisImageTo3D"]["input"]["required"]["texture_mode"] = [["blank", "fast", "opt"]]
     info["LoraLoader"] = {"input": {"required": {
         "model": ["MODEL"], "clip": ["CLIP"], "lora_name": [["latex_vinyl_v2.safetensors", "gloss.safetensors"]],
         "strength_model": ["FLOAT", {}], "strength_clip": ["FLOAT", {}]}}}
@@ -124,6 +126,10 @@ class MockComfy:
         await self.broadcast({"type": "execution_start", "data": {"prompt_id": pid}})
         for v in (1, 2, 3):
             await self.broadcast({"type": "progress", "data": {"value": v, "max": 3, "prompt_id": pid, "node": "1"}})
+        for nid, node in workflow.items():  # the real node crashes before saving the .ply
+            if node["class_type"] == "IF_TrellisImageTo3D" and not node["inputs"]["save_glb"]:
+                self.fail_with = {"node_id": nid, "node_type": node["class_type"], "exception_type": "AttributeError",
+                                  "exception_message": "'NoneType' object has no attribute 'shape'", "traceback": []}
         if self.fail_with:
             data = {"prompt_id": pid, **self.fail_with}
             self.fail_with = None
@@ -155,8 +161,11 @@ class MockComfy:
                 outputs[nid] = {"gifs": [{"filename": f"{pre}_00001.mp4", "subfolder": sub, "type": "output",
                                           "format": "video/h264-mp4"}]}
             elif cls == "IF_TrellisImageTo3D":
+                # Like the real node: the .ply is written to disk but never reported in history.
                 proj = inp["project_name"]
                 self.files[(proj, f"{proj}.glb")] = b"glb"
+                if inp["save_gaussian"]:
+                    self.files[(proj, f"{proj}.ply")] = b"ply\nformat binary_little_endian 1.0\n"
             elif cls == "Hy3DExportMesh":
                 sub, _, pre = inp["filename_prefix"].rpartition("/")
                 self.files[(sub, f"{pre}_00001_.glb")] = b"glb"

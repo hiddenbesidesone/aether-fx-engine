@@ -77,6 +77,67 @@ def test_generate_3d_asset(comfy, tmp_path, engine):
     assert uploaded.size == (300, 400)
 
 
+@pytest.mark.parametrize("splat_only", [False, True])
+def test_generate_3d_asset_splat(comfy, tmp_path, splat_only):
+    import generate_3d_asset
+
+    out = tmp_path / "exports"
+    argv = ["--image", str(_concept(tmp_path / "doll.v2.png")), "--export-splat", "--seed", "7",
+            "--output-dir", str(out), "--comfy-url", comfy.url]
+    argv += ["--splat-only"] if splat_only else ["--texture-mode", "opt"]
+    assert generate_3d_asset.main(argv) == 0
+    expected = {"doll.v2_trellis_7.ply"} | (set() if splat_only else {"doll.v2_trellis_7.glb"})
+    assert {p.name for p in out.iterdir()} == expected
+    assert (out / "doll.v2_trellis_7.ply").read_bytes().startswith(b"ply\n")
+    trellis = next(n["inputs"] for n in comfy.prompts[-1].values() if n["_meta"]["title"] == "trellis")
+    assert trellis["save_gaussian"] is True and trellis["save_glb"] is True
+    assert trellis["texture_mode"] == ("blank" if splat_only else "opt")
+
+
+def test_splat_missing_on_server_is_a_clear_error(comfy, tmp_path):
+    import generate_3d_asset
+
+    real = comfy.outputs_for
+
+    def drop_ply(wf):  # node ran but the .ply never landed in output/
+        outputs = real(wf)
+        for key in [k for k in comfy.files if k[1].endswith(".ply")]:
+            del comfy.files[key]
+        return outputs
+    comfy.outputs_for = drop_ply
+    with pytest.raises(SystemExit, match=r"\.ply could not be downloaded"):
+        generate_3d_asset.main(["--image", str(_concept(tmp_path / "a.png")), "--export-splat",
+                                "--output-dir", str(tmp_path / "o"), "--comfy-url", comfy.url])
+
+
+def test_default_run_does_not_request_splat(tmp_path):
+    import generate_3d_asset
+
+    payload = tmp_path / "p.json"
+    generate_3d_asset.main(["--image", str(_concept(tmp_path / "a.png")), "--dry-run", "--dump-payload", str(payload)])
+    trellis = next(n["inputs"] for n in json.loads(payload.read_text()).values() if n["_meta"]["title"] == "trellis")
+    assert (trellis["save_gaussian"], trellis["save_glb"], trellis["texture_mode"]) == (False, True, "fast")
+
+
+def test_mock_rejects_save_glb_false(comfy):
+    with ComfyClient(comfy.url) as client, pytest.raises(ComfyExecutionError, match="shape"):
+        client.run({"4": {"class_type": "IF_TrellisImageTo3D",
+                          "inputs": {"save_glb": False, "save_gaussian": True, "project_name": "p"}}})
+
+
+@pytest.mark.parametrize("argv, message", [
+    (["--engine", "hunyuan", "--export-splat"], "--export-splat needs --engine trellis"),
+    (["--engine", "hunyuan", "--texture-mode", "opt"], "--texture-mode needs --engine trellis"),
+    (["--splat-only"], "--splat-only needs --export-splat"),
+    (["--export-splat", "--splat-only", "--texture-mode", "opt"], "--splat-only skips"),
+])
+def test_splat_flag_validation(tmp_path, argv, message):
+    import generate_3d_asset
+
+    with pytest.raises(SystemExit, match=message):
+        generate_3d_asset.main(["--image", str(_concept(tmp_path / "a.png")), "--dry-run", *argv])
+
+
 def test_trellis_refuses_non_cuda_server(comfy, tmp_path):
     import generate_3d_asset
 
