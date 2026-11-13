@@ -65,3 +65,6 @@ Paste the output to Claude.
   `output/trellis-splat/trellis_first_tests_review.blend` (not in git, since output/ is ignored): the 7 tidied meshes in a row
   with labels, plus a coloured point preview of each splat behind it (geometry nodes, not a real splat render).
   Back to the earlier plan: user + Gemini on guide 02 (audio); guide 04 (Blender previz) is ready to hand over after 02.
+
+- **2026-11-13 ~15:20** · Session cut off again (4th time). User pasted my last message. Checked: branch is in sync with
+  origin at ed3a750, working tree clean, nothing lost. No new work. **Next:** unchanged. Guide 02 (audio) with Gemini, then guide 04 after a `git pull` on the pod.
