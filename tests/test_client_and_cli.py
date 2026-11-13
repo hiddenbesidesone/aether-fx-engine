@@ -198,6 +198,45 @@ def test_render_blender_video_depth_only_dry_run(tmp_path):
     assert classes.count("ControlNetApplyAdvanced") == 1
 
 
+def _clay(root, n=6):
+    root.mkdir(parents=True)
+    for i in range(n):
+        Image.new("RGB", (160, 90), (120 + i, 120, 120)).save(root / f"{i:04d}.png")
+    return root
+
+
+def test_render_blender_video_clay(comfy, tmp_path):
+    import render_blender_video
+
+    out = tmp_path / "shot.mp4"
+    rc = render_blender_video.main(["--clay", str(_clay(tmp_path / "clay")), "--prompt", "vinyl doll",
+                                    "--frames", "5", "--output", str(out), "--comfy-url", comfy.url])
+    assert rc == 0 and out.read_bytes() == b"mp4"
+    wf = comfy.prompts[-1]
+    by_title = {n["_meta"]["title"]: (nid, n) for nid, n in wf.items()}
+    assert "normal_frames" not in by_title
+    clay_id = by_title["depth_frames"][0]
+    assert by_title["depth_estimate"][1]["inputs"]["image"] == [clay_id, 0]
+    assert by_title["canny_edges"][1]["inputs"]["image"] == [clay_id, 0]
+    assert by_title["apply_depth"][1]["inputs"]["image"] == [by_title["depth_estimate"][0], 0]
+    assert by_title["apply_normal"][1]["inputs"]["image"] == [by_title["canny_edges"][0], 0]
+    assert "canny" in by_title["normal_controlnet"][1]["inputs"]["control_net_name"]
+    assert sum(1 for sub, _ in comfy.uploads if sub.endswith("_clay")) == 5
+
+
+def test_render_blender_video_clay_depth_only_dry_run(tmp_path):
+    import render_blender_video
+
+    payload = tmp_path / "payload.json"
+    rc = render_blender_video.main(["--clay", str(_clay(tmp_path / "clay")), "--prompt", "x", "--canny-strength",
+                                    "0", "--output", str(tmp_path / "o.mp4"), "--dry-run",
+                                    "--dump-payload", str(payload)])
+    assert rc == 0
+    classes = [n["class_type"] for n in json.loads(payload.read_text()).values()]
+    assert classes.count("ControlNetApplyAdvanced") == 1 and "Canny" not in classes
+    assert "DepthAnythingV2Preprocessor" in classes
+
+
 def test_run_brand_stylizer(comfy, tmp_path):
     import run_brand_stylizer
 

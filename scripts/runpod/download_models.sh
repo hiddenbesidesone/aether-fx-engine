@@ -4,10 +4,12 @@
 #   bash scripts/runpod/download_models.sh stable-audio   # needs HF_TOKEN + license accepted (see below)
 #   bash scripts/runpod/download_models.sh mmaudio        # Foley from video (~5 GB, public)
 #   bash scripts/runpod/download_models.sh yvann          # Yvann audio-reactive Text-to-Video example (~5 GB)
+#   bash scripts/runpod/download_models.sh previz         # Blender previz -> video: SD1.5, AnimateDiff v3, ControlNets (~6.5 GB)
 #
 # Models that download themselves on first use (into /workspace, see env.sh):
 #   TRELLIS-image-large -> models/checkpoints/   DINOv2 -> $TORCH_HOME   BiRefNet -> models/RMBG/
 #   MusicGen            -> models/musicgen/      Demucs -> $TORCH_HOME   BigVGAN  -> models/mmaudio/nvidia/
+#   Depth Anything V2   -> custom_nodes/comfyui_controlnet_aux/ckpts/
 #
 # Stable Audio Open is gated: open https://huggingface.co/stabilityai/stable-audio-open-1.0 while
 # logged in, accept the license, create a read token at https://huggingface.co/settings/tokens, then
@@ -59,7 +61,16 @@ yvann)
     fetch guoyww/animatediff v3_sd15_adapter.ckpt "$M/loras/v3_sd15_adapter.ckpt"
     fetch ByteDance/Hyper-SD Hyper-SD15-12steps-CFG-lora.safetensors "$M/loras/Hyper-SD15-12steps-CFG-lora.safetensors"
     ;;
+previz)
+    # The names workflows/templates/blender_previz_to_video.json and render_blender_video.py expect.
+    fetch Lykon/DreamShaper DreamShaper_8_pruned.safetensors "$M/checkpoints/dreamshaper_8.safetensors"
+    fetch guoyww/animatediff v3_sd15_mm.ckpt "$M/animatediff_models/v3_sd15_mm.ckpt"
+    for f in control_v11f1p_sd15_depth_fp16.safetensors control_v11p_sd15_normalbae_fp16.safetensors \
+             control_v11p_sd15_canny_fp16.safetensors; do
+        fetch comfyanonymous/ControlNet-v1-1_fp16_safetensors "$f" "$M/controlnet/$f"
+    done
+    ;;
 *)
-    echo "usage: download_models.sh stable-audio|mmaudio|yvann" >&2; exit 2 ;;
+    echo "usage: download_models.sh stable-audio|mmaudio|yvann|previz" >&2; exit 2 ;;
 esac
 echo "[✓] done"

@@ -13,7 +13,7 @@ CLIs that run on the pod or on a Mac.
 | Music / soundscapes (Stable Audio Open, MusicGen) + Demucs stems | `scripts/generate_audio.py`, `scripts/separate_stems.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/02_…` |
 | Foley / ambience from video (MMAudio), muxed into the MP4 | `scripts/add_foley.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/03_…` |
 | Audio-reactive animation (Yvann nodes + AnimateDiff) | Yvann's example workflows in the ComfyUI UI | 🟡 Install + models scripted; no CLI. Guide: `docs/gemini/03_…` |
-| Blender depth/normal passes → AnimateDiff video | `scripts/render_blender_video.py` | 🟡 Built, mock-tested; not yet run on a GPU |
+| Blender previz (depth/normal passes, or a clay viewport render) → AnimateDiff video | `scripts/render_blender_video.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/04_…` |
 | Batch SDXL brand restyle (LoRA + IP-Adapter + depth) | `scripts/run_brand_stylizer.py` | 🟡 Built, mock-tested; not yet run on a GPU |
 | Hunyuan3D-2 mesh (alternative 3D engine) | `scripts/generate_3d_asset.py --engine hunyuan` | 🟡 Built, mock-tested; no install guide yet |
 
@@ -28,6 +28,7 @@ models haven't been run.
 | `docs/gemini/01_image_to_3d_and_gaussian_splat.md` | TRELLIS + BiRefNet install, GPU checks, mesh/splat runs, Blender import |
 | `docs/gemini/02_audio_music_and_stems.md` | Stable Audio Open, MusicGen, Demucs: install, gated-model download, runs |
 | `docs/gemini/03_video_foley_and_audio_reactive.md` | MMAudio Foley CLI; Yvann audio-reactive workflows in the UI |
+| `docs/gemini/04_blender_previz_to_video.md` | AnimateDiff + ControlNet install, models, clay-render and depth-pass runs |
 | `docs/runpod_comfyui_liveportrait_setup_guide.md` | LivePortrait: InsightFace symlink, onnxruntime-gpu 1.26 pin, ldconfig |
 | `docs/3d_ai_to_blender_workflow_guide.md` | Input prep, Blender retopology and doll/plastic shaders |
 
@@ -107,6 +108,8 @@ python scripts/add_foley.py --video ./exports/video/shot_01.mp4 --prompt "toy fo
 python scripts/render_blender_video.py --depth-frames ./blender_out/depth/ \
     --normal-frames ./blender_out/normal/ --prompt "cinematic 90s vinyl doll, neon water splash" \
     --frames 120 --fps 24 --output ./exports/video/previz_shot_01.mp4
+python scripts/render_blender_video.py --clay ./previz/shot_01_clay.mp4 \
+    --prompt "cinematic 90s vinyl doll, neon water splash" --frames 96 --output ./exports/video/shot_01.mp4
 python scripts/run_brand_stylizer.py --input-dir ./inputs/concepts/ \
     --lora "latex_vinyl_v2.safetensors:0.8" --ip-adapter-weight 0.65 --denoise 0.55 \
     --prompt "hyper-gloss black latex outfit, molded toy seam details" --batch-count 4 --output-dir ./exports/stylized/

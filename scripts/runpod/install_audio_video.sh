@@ -5,6 +5,7 @@
 #   bash scripts/runpod/install_audio_video.sh audio      # MusicGen, Demucs stems (Stable Audio is built in)
 #   bash scripts/runpod/install_audio_video.sh video      # VideoHelperSuite, MMAudio (Foley), Yvann audio-reactive
 #   bash scripts/runpod/install_audio_video.sh yvann-deps # extra packs the Yvann example workflows use
+#   bash scripts/runpod/install_audio_video.sh previz     # Blender previz -> AnimateDiff video (render_blender_video.py)
 #   bash scripts/runpod/install_audio_video.sh all
 #
 # Then: bash scripts/runpod/download_models.sh ...   and   bash scripts/runpod/start_comfy.sh
@@ -45,8 +46,17 @@ case "$GROUP" in yvann-deps|all)
              "$COMFY_DIR/models/controlnet" "$COMFY_DIR/models/vae" "$COMFY_DIR/models/loras"
 ;; esac
 
-case "$GROUP" in audio|video|yvann-deps|all) ;; *)
-    echo "usage: install_audio_video.sh audio|video|yvann-deps|all" >&2; exit 2 ;;
+case "$GROUP" in previz|all)
+    # ControlNet loading/apply and Canny are built into ComfyUI; controlnet_aux adds Depth Anything V2
+    # for --clay renders (its checkpoint downloads itself into custom_nodes/comfyui_controlnet_aux/ckpts).
+    node ComfyUI-VideoHelperSuite     https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git
+    node ComfyUI-AnimateDiff-Evolved  https://github.com/Kosinkadink/ComfyUI-AnimateDiff-Evolved.git
+    node comfyui_controlnet_aux       https://github.com/Fannovel16/comfyui_controlnet_aux.git
+    mkdir -p "$COMFY_DIR/models/animatediff_models" "$COMFY_DIR/models/controlnet" "$COMFY_DIR/models/checkpoints"
+;; esac
+
+case "$GROUP" in audio|video|yvann-deps|previz|all) ;; *)
+    echo "usage: install_audio_video.sh audio|video|yvann-deps|previz|all" >&2; exit 2 ;;
 esac
 
 repair_onnxruntime
