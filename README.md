@@ -9,7 +9,7 @@ CLIs that run on the pod or on a Mac.
 | Workflow | Entry point | Status |
 |---|---|---|
 | Stylized LivePortrait (image + driving video → talking clip) | `scripts/run_stylized_liveportrait.py` | ✅ **Tested on RunPod.** Setup quirks: `docs/runpod_comfyui_liveportrait_setup_guide.md` |
-| Concept image → 3D mesh `.glb` + Gaussian splat `.ply` (TRELLIS) | `scripts/generate_3d_asset.py` | 🟡 Built, mock-tested; **not yet run on a GPU.** Guide: `docs/gemini/01_…` |
+| Concept image → 3D mesh `.glb` + Gaussian splat `.ply` (TRELLIS) | `scripts/generate_3d_asset.py` | ✅ **Tested on RunPod (L40S)**: mesh (`fast` + `opt` 2048 texture) and splat. Not yet tried on Blackwell. Guide: `docs/gemini/01_…` |
 | Music / soundscapes (Stable Audio Open, MusicGen) + Demucs stems | `scripts/generate_audio.py`, `scripts/separate_stems.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/02_…` |
 | Foley / ambience from video (MMAudio), muxed into the MP4 | `scripts/add_foley.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/03_…` |
 | Audio-reactive animation (Yvann nodes + AnimateDiff) | Yvann's example workflows in the ComfyUI UI | 🟡 Install + models scripted; no CLI. Guide: `docs/gemini/03_…` |

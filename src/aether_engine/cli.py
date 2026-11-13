@@ -39,7 +39,8 @@ def add_common_args(parser: argparse.ArgumentParser) -> None:
 
 
 def resolve_seed(seed: int | None) -> int:
-    return seed if seed is not None else random.randint(0, 2**32 - 1)
+    # Many nodes (e.g. IF_TrellisImageTo3D) cap seed at the signed 32-bit max.
+    return seed if seed is not None else random.randint(0, 2**31 - 1)
 
 
 def make_client(args: argparse.Namespace) -> ComfyClient:

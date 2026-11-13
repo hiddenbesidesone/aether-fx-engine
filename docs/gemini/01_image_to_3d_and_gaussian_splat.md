@@ -16,8 +16,9 @@ I'm running ComfyUI on a **RunPod GPU pod** and working in the **JupyterLab term
   SkySplat add-on).
 - **Engine:** TRELLIS, via the ComfyUI node pack `ComfyUI-IF_Trellis`. It only works on CUDA.
 
-**Status:** this workflow is built and passes tests against a fake server, but it has **never run on a real
-GPU**. This is its first real run, so expect to troubleshoot.
+**Status:** verified end to end on an **NVIDIA L40S** pod (torch 2.8.0+cu128, Python 3.12): textured `.glb`
+(`fast` and `opt` 2048 bakes) and `.ply` splats, with `SPARSE_ATTN_BACKEND=flash_attn` and
+`SPCONV_ALGO=implicit_gemm`. It has not been run on a Blackwell GPU (RTX PRO 6000) yet.
 
 What's already on the pod and working: ComfyUI plus a **LivePortrait** workflow. LivePortrait depends on
 `onnxruntime-gpu==1.26.0` (CUDA 12) and torch 2.8 / CUDA 12.8. **Protecting that setup is the top priority.**

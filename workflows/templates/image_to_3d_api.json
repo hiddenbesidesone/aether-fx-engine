@@ -22,7 +22,7 @@
       "invert_output": false,
       "refine_foreground": true,
       "unload_model": false,
-      "background": "Alpha",
+      "background": "Color",
       "background_color": "#222222"
     },
     "_meta": {

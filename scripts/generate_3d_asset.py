@@ -127,13 +127,14 @@ def main(argv=None) -> int:
         meshes = [client.download(f"{tag}.glb", subfolder=tag, dest_dir=args.output_dir)]
     if not meshes and not args.splat_only:
         raise CLIError(f"prompt {prompt_id} finished but produced no mesh file")
-    splat = download_splat(client, tag, args.output_dir) if args.export_splat else None
 
+    # Rename each file as soon as it lands, so a failed splat download can't strand a <job-tag>.glb.
     base = args.output_dir / f"{args.image.stem}_{args.engine}_{seed}"
     for i, mesh in enumerate(meshes):
         suffix = f"_{i}" if len(meshes) > 1 else ""
         print(f"[✓] mesh  {move_to(mesh, base.with_name(base.name + suffix + mesh.suffix))}")
-    if splat:
+    if args.export_splat:
+        splat = download_splat(client, tag, args.output_dir)
         print(f"[✓] splat {move_to(splat, base.with_name(base.name + '.ply'))}")
     return 0
 

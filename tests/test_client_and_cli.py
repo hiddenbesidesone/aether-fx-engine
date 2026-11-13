@@ -106,8 +106,10 @@ def test_splat_missing_on_server_is_a_clear_error(comfy, tmp_path):
         return outputs
     comfy.outputs_for = drop_ply
     with pytest.raises(SystemExit, match=r"\.ply could not be downloaded"):
-        generate_3d_asset.main(["--image", str(_concept(tmp_path / "a.png")), "--export-splat",
+        generate_3d_asset.main(["--image", str(_concept(tmp_path / "a.png")), "--export-splat", "--seed", "3",
                                 "--output-dir", str(tmp_path / "o"), "--comfy-url", comfy.url])
+    # the mesh was already renamed, not left behind under the timestamped job name
+    assert sorted(p.name for p in (tmp_path / "o").iterdir()) == ["a_trellis_3.glb"]
 
 
 def test_default_run_does_not_request_splat(tmp_path):
@@ -117,6 +119,15 @@ def test_default_run_does_not_request_splat(tmp_path):
     generate_3d_asset.main(["--image", str(_concept(tmp_path / "a.png")), "--dry-run", "--dump-payload", str(payload)])
     trellis = next(n["inputs"] for n in json.loads(payload.read_text()).values() if n["_meta"]["title"] == "trellis")
     assert (trellis["save_gaussian"], trellis["save_glb"], trellis["texture_mode"]) == (False, True, "fast")
+    # TRELLIS concatenates image + mask: an RGBA image would make 5 channels and crash PIL
+    rmbg = next(n["inputs"] for n in json.loads(payload.read_text()).values() if n["class_type"] == "BiRefNetRMBG")
+    assert rmbg["background"] == "Color"
+
+
+def test_default_seed_fits_signed_int32():
+    from aether_engine.cli import resolve_seed
+
+    assert all(0 <= resolve_seed(None) <= 2**31 - 1 for _ in range(1000))
 
 
 def test_mock_rejects_save_glb_false(comfy):
