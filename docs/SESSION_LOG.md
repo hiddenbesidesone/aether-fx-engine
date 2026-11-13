@@ -59,3 +59,9 @@ Paste the output to Claude.
   Committed and pushed to feature/multi-workflow-engine.
   **Next:** on the pod, `git pull`, then a multi-view run (e.g. the bear turntable, `--views 6`). Risk: BiRefNetRMBG on a
   batch of images hasn't been tested. Guide 02 audio is still paused.
+
+- **2026-11-13 ~15:10** · User mostly uses 4–6 Gemini-generated views (front/side/back/top/bottom) rather than turntables. No
+  code change needed (all named images are used; put the front first). Built a review file
+  `output/trellis-splat/trellis_first_tests_review.blend` (not in git, since output/ is ignored): the 7 tidied meshes in a row
+  with labels, plus a coloured point preview of each splat behind it (geometry nodes, not a real splat render).
+  Back to the earlier plan: user + Gemini on guide 02 (audio); guide 04 (Blender previz) is ready to hand over after 02.
