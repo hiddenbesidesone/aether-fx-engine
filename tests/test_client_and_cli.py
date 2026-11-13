@@ -276,3 +276,48 @@ def test_preflight_names_missing_model(comfy, tmp_path):
     with pytest.raises(SystemExit, match="ckpt_name='missing.safetensors' not available"):
         run_brand_stylizer.main(["--image", str(img), "--prompt", "x", "--checkpoint", "missing.safetensors",
                                  "--comfy-url", comfy.url, "--output-dir", str(tmp_path / "o")])
+
+
+def test_generate_3d_asset_multi_view(comfy, tmp_path):
+    import generate_3d_asset
+
+    turntable = tmp_path / "bear_turntable"
+    turntable.mkdir()
+    for i in range(12):
+        _concept(turntable / f"frame_{i:03d}.png")
+    out = tmp_path / "o"
+    assert generate_3d_asset.main(["--image", str(turntable), "--views", "4", "--seed", "9", "--export-splat",
+                                   "--multimode", "multidiffusion", "--output-dir", str(out),
+                                   "--comfy-url", comfy.url]) == 0
+    assert sorted(p.name for p in out.iterdir()) == ["bear_turntable_trellis_9.glb", "bear_turntable_trellis_9.ply"]
+    assert len(comfy.uploads) == 4
+    wf = comfy.prompts[-1]
+    by_title = {n["_meta"]["title"]: n for n in wf.values()}
+    assert (by_title["trellis"]["inputs"]["mode"], by_title["trellis"]["inputs"]["multimode"]) == ("multi",
+                                                                                                   "multidiffusion")
+    # LoadImage x4 -> ImageBatch chain -> background removal
+    batch = wf[by_title["remove_background"]["inputs"]["image"][0]]
+    depth = 0
+    while batch["class_type"] == "ImageBatch":
+        depth += 1
+        batch = wf[batch["inputs"]["image1"][0]]
+    assert depth == 3 and batch["_meta"]["title"] == "source_image"
+
+
+def test_pick_views_spreads_frames_evenly(tmp_path):
+    import generate_3d_asset
+
+    for i in range(96):
+        _concept(tmp_path / f"f{i:03d}.png")
+    picked = generate_3d_asset.pick_views([tmp_path], 6)
+    assert [p.name for p in picked] == ["f000.png", "f016.png", "f032.png", "f048.png", "f064.png", "f080.png"]
+    assert generate_3d_asset.pick_views([tmp_path / "f005.png"], 6) == [tmp_path / "f005.png"]
+
+
+def test_hunyuan_rejects_several_views(tmp_path):
+    import generate_3d_asset
+    from aether_engine.cli import CLIError
+
+    with pytest.raises(CLIError, match="several --image views need --engine trellis"):
+        generate_3d_asset.main(["--image", str(_concept(tmp_path / "a.png")), str(_concept(tmp_path / "b.png")),
+                                "--engine", "hunyuan", "--dry-run"])

@@ -1,0 +1,12 @@
+Feedback for the workflow chat (fixable):
+
+▎ Output smuggle-bear-1_trellis_42.glb / .ply checked in Blender:
+▎ 1. Loose geometry not cleaned up. The .glb has 5 separate pieces. The main body is 30,940 faces, plus a 398-face sliver floating in front of the muzzle and three tiny specks. Please add a post-process step that keeps only the largest connected piece (or drops pieces under ~1% of the face count) before export.
+▎ 2. Try multi-view input. We have a 96-frame turntable of the same bear on a white background (front, sides, back at known angles). If ComfyUI-IF_Trellis exposes TRELLIS's multi-image mode, feed it 4–8 of those frames instead of one. That should stop the back and sides being invented and fading to white.
+▎ 3. Optional: export at real-world scale (or record the scale factor) and pre-rotate the .ply to Z-up for Blender, so neither needs fixing by hand on import.
+
+Not fixable, because that's the technology:
+- One picture in means the back is a guess. That's why the pink fades round the sides and back. Feeding it more views (point 2 above) is the only fix.
+- The splat stores colour only. TRELLIS writes the simplest kind of splat, so fur sheen won't shift as you move round it, and it looks flat.
+- Only the outside exists. It can't know about the brain, the coil or the mini bear.
+- The 1 m scale and sideways orientation are just TRELLIS's output conventions, not errors.

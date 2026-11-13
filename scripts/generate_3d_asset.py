@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""Single-view 2D concept -> 3D .glb mesh and/or Gaussian splat .ply (TRELLIS or Hunyuan3D-2) via ComfyUI.
+r"""2D concept (one view, or several of the same subject) -> 3D .glb mesh and/or Gaussian splat .ply (TRELLIS or Hunyuan3D-2) via ComfyUI.
 
     python scripts/generate_3d_asset.py --image ./inputs/doll_head.png --engine trellis \
         --steps 25 --output-dir ./exports/3d/
@@ -10,6 +10,14 @@ r"""Single-view 2D concept -> 3D .glb mesh and/or Gaussian splat .ply (TRELLIS o
 
     # splat only: skips the .glb texture bake and download
     python scripts/generate_3d_asset.py --image ./inputs/dollface_isolated.png --export-splat --splat-only
+
+    # multi-view (TRELLIS): several photos/renders of the SAME subject, or a turntable folder
+    # (6 evenly spaced frames are picked from it). The back and sides stop being guessed.
+    python scripts/generate_3d_asset.py --image ./inputs/bear_turntable/ --views 6 --export-splat
+    python scripts/generate_3d_asset.py --image front.png side.png back.png --export-splat
+
+Tidy the downloads for Blender afterwards (drop specks, Z-up splat, real-world size, feet on the ground):
+    blender -b -P scripts/blender/tidy_trellis_asset.py -- exports/3d/<name>_trellis_<seed>.glb --height 0.35
 """
 
 from __future__ import annotations
@@ -27,7 +35,7 @@ from aether_engine.cli import (CLIError, add_common_args, dump_payload, execute,
                                preflight, require_cuda_server, require_file, resolve_seed)
 from aether_engine.payload_builder import WorkflowTemplate, combo_options  # noqa: E402
 from aether_engine.utils.file_transfer import collect_outputs, job_tag, move_to, upload_as  # noqa: E402
-from aether_engine.utils.image_tools import prepare_3d_input  # noqa: E402
+from aether_engine.utils.image_tools import list_frames, prepare_3d_input  # noqa: E402
 
 TEMPLATES = {"trellis": "image_to_3d_api.json", "hunyuan": "image_to_3d_hunyuan_api.json"}
 MESH_SUFFIXES = (".glb", ".gltf", ".obj")  # .ply here is the splat, fetched separately
@@ -37,7 +45,14 @@ LOADER_BACKENDS = {"attn_backend": ("flash_attn", "xformers", "sdpa"), "sparse_b
 
 def parse_args(argv=None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--image", type=Path, required=True, help="concept image (transparent PNG preferred)")
+    p.add_argument("--image", type=Path, nargs="+", required=True,
+                   help="concept image (transparent PNG, or a plain white/flat background). Give several images, "
+                        "or a folder of turntable frames, of the SAME subject for TRELLIS multi-view")
+    p.add_argument("--views", type=int, default=6,
+                   help="multi-view: use at most this many images, evenly spaced through the list (default 6)")
+    p.add_argument("--multimode", choices=("stochastic", "multidiffusion"), default="stochastic",
+                   help="TRELLIS multi-view blending: stochastic (default) cycles the views across sampling steps; "
+                        "multidiffusion averages them every step (slower, sometimes cleaner)")
     p.add_argument("--engine", choices=sorted(TEMPLATES), default="trellis")
     p.add_argument("--steps", type=int, default=25,
                    help="TRELLIS ss_sampling_steps / Hunyuan diffusion steps (default 25)")
@@ -58,8 +73,10 @@ def parse_args(argv=None) -> argparse.Namespace:
     add_common_args(p)
     args = p.parse_args(argv)
 
-    require_file(args.image, "--image")
+    args.images = pick_views(args.image, args.views)
     if args.engine != "trellis":
+        if len(args.images) > 1:
+            raise CLIError("several --image views need --engine trellis (Hunyuan3D-2 here is single-view)")
         for flag, given in (("--export-splat", args.export_splat), ("--splat-only", args.splat_only),
                             ("--texture-mode", args.texture_mode)):
             if given:
@@ -77,9 +94,44 @@ def parse_args(argv=None) -> argparse.Namespace:
     return args
 
 
-def build(args: argparse.Namespace, image_name: str, tag: str, seed: int) -> WorkflowTemplate:
+def pick_views(paths: list[Path], views: int) -> list[Path]:
+    """Expand folders into their frames, then keep ``views`` evenly spaced images (first one always kept)."""
+    in_range("--views", views, 1, 16)
+    images: list[Path] = []
+    for path in paths:
+        if path.is_dir():
+            try:
+                images += [f for f in list_frames(path) if f.suffix.lower() != ".exr"]
+            except FileNotFoundError as exc:
+                raise CLIError(f"--image: {exc}") from exc
+        else:
+            require_file(path, "--image")
+            images.append(path)
+    if not images:
+        raise CLIError("--image: no usable images found")
+    if len(images) > views:
+        step = len(images) / views
+        images = [images[int(i * step)] for i in range(views)]
+    return images
+
+
+def job_name(args: argparse.Namespace) -> str:
+    """Output basename: the image's stem, or the folder's name for a turntable folder."""
+    first = args.image[0]
+    return first.name if first.is_dir() else first.stem
+
+
+def build(args: argparse.Namespace, image_names: list[str], tag: str, seed: int) -> WorkflowTemplate:
     wf = WorkflowTemplate.load(TEMPLATES[args.engine])
-    wf.set("source_image", image=image_name)
+    wf.set("source_image", image=image_names[0])
+    if len(image_names) > 1:
+        # One LoadImage per view, joined into a batch for background removal; all are the same square size.
+        batch = [wf.node_id("source_image"), 0]
+        for i, name in enumerate(image_names[1:], start=2):
+            view = wf.add_node("LoadImage", {"image": name}, title=f"source_image_{i}")
+            batch = [wf.add_node("ImageBatch", {"image1": batch, "image2": [view, 0]}, title=f"view_batch_{i}"), 0]
+        wf.set("remove_background", image=batch)
+        wf.set("trellis", mode="multi", multimode=args.multimode)
     if args.engine == "trellis":
         wf.set("trellis", seed=seed, ss_sampling_steps=args.steps, slat_sampling_steps=args.slat_steps,
                texture_size=args.texture_size, texture_mode=args.texture_mode, project_name=tag,
@@ -94,14 +146,19 @@ def build(args: argparse.Namespace, image_name: str, tag: str, seed: int) -> Wor
 def main(argv=None) -> int:
     args = parse_args(argv)
     seed = resolve_seed(args.seed)
-    tag = job_tag(args.image.stem)
+    name = job_name(args)
+    tag = job_tag(name)
 
     with tempfile.TemporaryDirectory(prefix="aether3d_") as tmp:
-        staged = prepare_3d_input(args.image, Path(tmp) / tag, padding=args.padding, size=args.size)
-        print(f"[*] framed {args.image} -> {args.size}x{args.size} square, {args.padding:.0%} padding")
+        staged = [prepare_3d_input(image, Path(tmp) / (tag if i == 0 else f"{tag}_v{i + 1}"),
+                                   padding=args.padding, size=args.size) for i, image in enumerate(args.images)]
+        for image in args.images:
+            print(f"[*] framed {image} -> {args.size}x{args.size} square, {args.padding:.0%} padding")
+        if len(staged) > 1:
+            print(f"[*] multi-view: {len(staged)} views, {args.multimode}")
 
         if args.dry_run:
-            dump_payload(build(args, staged.name, tag, seed), args.dump_payload)
+            dump_payload(build(args, [s.name for s in staged], tag, seed), args.dump_payload)
             return 0
 
         client = make_client(args)
@@ -110,9 +167,9 @@ def main(argv=None) -> int:
         elif client.server_device_type() != "cuda":
             print("[!] Hunyuan3D on a non-CUDA server: flash VDM decode and the texture rasterizer may be "
                   "unavailable; shape generation will be slow.")
-        image_name = upload_as(client, staged, staged.name, Path(tmp))
+        image_names = [upload_as(client, s, s.name, Path(tmp)) for s in staged]
 
-    wf = build(args, image_name, tag, seed)
+    wf = build(args, image_names, tag, seed)
     if args.engine == "trellis":
         match_trellis_backends(wf, client.object_info())
     preflight(client, wf, args)
@@ -129,7 +186,7 @@ def main(argv=None) -> int:
         raise CLIError(f"prompt {prompt_id} finished but produced no mesh file")
 
     # Rename each file as soon as it lands, so a failed splat download can't strand a <job-tag>.glb.
-    base = args.output_dir / f"{args.image.stem}_{args.engine}_{seed}"
+    base = args.output_dir / f"{name}_{args.engine}_{seed}"
     for i, mesh in enumerate(meshes):
         suffix = f"_{i}" if len(meshes) > 1 else ""
         print(f"[✓] mesh  {move_to(mesh, base.with_name(base.name + suffix + mesh.suffix))}")

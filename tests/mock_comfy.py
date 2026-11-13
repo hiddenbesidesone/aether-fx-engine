@@ -36,12 +36,15 @@ def object_info_from_templates() -> dict:
             entry["input"]["optional"][key] = req.pop(key)
     # Combo choices from IF_Trellis.py that the template only uses one of.
     info["IF_TrellisImageTo3D"]["input"]["required"]["texture_mode"] = [["blank", "fast", "opt"]]
+    info["IF_TrellisImageTo3D"]["input"]["required"]["mode"] = [["single", "multi"]]
+    info["IF_TrellisImageTo3D"]["input"]["required"]["multimode"] = [["stochastic", "multidiffusion"]]
     info["HuggingFaceMusicGen"]["input"]["required"]["model_size"] = [["small", "medium", "large"]]
     info["ControlNetLoader"]["input"]["required"]["control_net_name"][0].append(
         "control_v11p_sd15_canny_fp16.safetensors")
     # Added by render_blender_video.py --clay rather than present in a template.
     info["DepthAnythingV2Preprocessor"] = {"input": {"required": {"image": ["IMAGE"], "ckpt_name": [[
         "depth_anything_v2_vitl.pth", "depth_anything_v2_vits.pth"]]}, "optional": {"resolution": ["INT", {}]}}}
+    info["ImageBatch"] = {"input": {"required": {"image1": ["IMAGE"], "image2": ["IMAGE"]}}}  # generate_3d_asset multi-view
     info["Canny"] = {"input": {"required": {"image": ["IMAGE"], "low_threshold": ["FLOAT", {}],
                                             "high_threshold": ["FLOAT", {}]}}}
     info["LoraLoader"] = {"input": {"required": {

@@ -196,6 +196,30 @@ file browser (right-click → Download). Add `--seed N` to make a run repeatable
 Useful options: `--steps 25` (shape detail, 20–30), `--slat-steps 20`, `--texture-size 1024|2048`,
 `--padding 0.10`. Everything is listed in `--help`.
 
+**Kitbash finals:** use `--texture-mode opt --texture-size 2048`. The default (`fast`, 1024) is for quick looks.
+A plain white or flat background is fine; the background remover cuts the subject out.
+
+### Step 7b — Multi-view (several images of the same subject)
+
+One image means TRELLIS has to guess the back and sides, which is why colour fades around the back. If you
+have more views of the **same** subject (a Blender turntable render, or photos from front, side and back
+against a plain background), give them all:
+
+```bash
+# A folder of turntable frames: 6 evenly spaced frames are picked automatically
+$A scripts/generate_3d_asset.py --image inputs/bear_turntable/ --views 6 --export-splat \
+    --texture-mode opt --texture-size 2048 --output-dir /workspace/exports/3d/
+
+# Or name the views yourself (put the best front view first)
+$A scripts/generate_3d_asset.py --image inputs/front.png inputs/side.png inputs/back.png --export-splat \
+    --output-dir /workspace/exports/3d/
+```
+
+**Expected:** a `[*] framed ...` line per view, then `[*] multi-view: 6 views, stochastic`. Output files are
+named after the folder (`bear_turntable_trellis_<seed>.glb/.ply`). Keep `--views` at 4–8; more views use
+more VRAM without much gain. If the result looks smeared, try `--multimode multidiffusion` (slower).
+**First real run of this mode:** if background removal errors on the batch, paste the log to Claude.
+
 **Before queueing, the CLI checks the server.** If it prints `workflow doesn't match the server:` followed by
 a list, that list names exactly what's missing: a node that didn't load, or a model name. Paste it to Gemini.
 
@@ -210,11 +234,29 @@ a list, that list names exactly what's missing: a node that didn't load, or a mo
 
 ## Step 8 — In Blender (on the Mac)
 
-- **Mesh:** *File → Import → glTF 2.0*, then *Ctrl+A → Apply All Transforms*. To remesh and set up shaders,
-  see `docs/3d_ai_to_blender_workflow_guide.md`.
-- **Splat:** import the `.ply` with the SkySplat add-on. **Check its orientation**: TRELLIS rotates the
-  points when it saves, so you may need to rotate it 90° on X. The splat carries base colour only, with no
-  view-dependent shading, so it can look flatter than splats from captured footage.
+**First tidy the downloads** (runs Blender headless, about 3 s per asset, no add-ons needed):
+
+```bash
+cd ~/Development/Projects/creative-ai-suite/aether-fx-engine
+/Applications/Blender.app/Contents/MacOS/Blender -b -P scripts/blender/tidy_trellis_asset.py -- \
+    output/trellis-splat/ --height 0.35
+```
+
+For every `<name>.glb` / `<name>.ply` pair it writes `<name>_tidy.glb` / `<name>_tidy.ply`:
+
+- **Mesh:** loose specks are removed (pieces under 1% of the faces; `--min-piece 0` keeps everything).
+- **Splat:** rotated to Blender's Z-up, so it sits exactly on the mesh. No manual 90° rotation is needed.
+- **Both:** scaled so the asset is `--height` metres tall (leave it out to keep TRELLIS's 1 m box), and moved
+  so the base sits on the ground at the origin (`--no-ground` turns that off).
+
+Then:
+
+- **Mesh:** *File → Import → glTF 2.0* the `_tidy.glb`. To remesh and set up shaders, see
+  `docs/3d_ai_to_blender_workflow_guide.md`.
+- **Splat:** import the `_tidy.ply` with your splat add-on. It should stand upright on top of the mesh. If
+  your importer applies its own Y-up conversion, it will lie on its back; then use the original `.ply` instead
+  and tell Claude which add-on you used. The splat carries base colour only, with no view-dependent shading,
+  so it looks flatter than splats trained from real footage.
 
 ## Running from the Mac instead (optional)
 

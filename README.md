@@ -9,7 +9,7 @@ CLIs that run on the pod or on a Mac.
 | Workflow | Entry point | Status |
 |---|---|---|
 | Stylized LivePortrait (image + driving video → talking clip) | `scripts/run_stylized_liveportrait.py` | ✅ **Tested on RunPod.** Setup quirks: `docs/runpod_comfyui_liveportrait_setup_guide.md` |
-| Concept image → 3D mesh `.glb` + Gaussian splat `.ply` (TRELLIS) | `scripts/generate_3d_asset.py` | ✅ **Tested on RunPod (L40S)**: mesh (`fast` + `opt` 2048 texture) and splat. Not yet tried on Blackwell. Guide: `docs/gemini/01_…` |
+| Concept image(s) → 3D mesh `.glb` + Gaussian splat `.ply` (TRELLIS) | `scripts/generate_3d_asset.py`, then `scripts/blender/tidy_trellis_asset.py` | ✅ **Tested on RunPod (L40S)**: single-view mesh (`fast` + `opt` 2048 texture) and splat. 🟡 Multi-view (several images / turntable folder) mock-tested only. Not yet tried on Blackwell. SOP: `docs/sop/01_…` |
 | Music / soundscapes (Stable Audio Open, MusicGen) + Demucs stems | `scripts/generate_audio.py`, `scripts/separate_stems.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/02_…` |
 | Foley / ambience from video (MMAudio), muxed into the MP4 | `scripts/add_foley.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/03_…` |
 | Audio-reactive animation (Yvann nodes + AnimateDiff) | Yvann's example workflows in the ComfyUI UI | 🟡 Install + models scripted; no CLI. Guide: `docs/gemini/03_…` |
@@ -31,6 +31,12 @@ models haven't been run.
 | `docs/gemini/04_blender_previz_to_video.md` | AnimateDiff + ControlNet install, models, clay-render and depth-pass runs |
 | `docs/runpod_comfyui_liveportrait_setup_guide.md` | LivePortrait: InsightFace symlink, onnxruntime-gpu 1.26 pin, ldconfig |
 | `docs/3d_ai_to_blender_workflow_guide.md` | Input prep, Blender retopology and doll/plastic shaders |
+
+## SOPs (day-to-day routines, after setup)
+
+| SOP | Covers |
+|---|---|
+| `docs/sop/01_image_to_kitbash_asset_sop.md` | Image(s) or Blender turntable → TRELLIS (single or multi-view) → tidy → Blender kitbash asset + splat |
 
 ## Layout
 
