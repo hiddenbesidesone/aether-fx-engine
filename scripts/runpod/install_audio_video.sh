@@ -6,6 +6,8 @@
 #   bash scripts/runpod/install_audio_video.sh video      # VideoHelperSuite, MMAudio (Foley), Yvann audio-reactive
 #   bash scripts/runpod/install_audio_video.sh yvann-deps # extra packs the Yvann example workflows use
 #   bash scripts/runpod/install_audio_video.sh previz     # Blender previz -> AnimateDiff video (render_blender_video.py)
+#   bash scripts/runpod/install_audio_video.sh police-bike # Wan VACE world, SeedVR2 upscale, BiRefNet matte
+#   bash scripts/runpod/install_audio_video.sh matanyone   # optional second matting node (Police Bike Workflow 1)
 #   bash scripts/runpod/install_audio_video.sh all
 #
 # Then: bash scripts/runpod/download_models.sh ...   and   bash scripts/runpod/start_comfy.sh
@@ -55,8 +57,30 @@ case "$GROUP" in previz|all)
     mkdir -p "$COMFY_DIR/models/animatediff_models" "$COMFY_DIR/models/controlnet" "$COMFY_DIR/models/checkpoints"
 ;; esac
 
-case "$GROUP" in audio|video|yvann-deps|previz|all) ;; *)
-    echo "usage: install_audio_video.sh audio|video|yvann-deps|previz|all" >&2; exit 2 ;;
+case "$GROUP" in police-bike)
+    # WanVaceToVideo / TrimVideoLatent are core ComfyUI nodes (comfy_extras/nodes_wan.py), added mid-2025.
+    if ! grep -q "class WanVaceToVideo" "$COMFY_DIR/comfy_extras/nodes_wan.py" 2>/dev/null; then
+        echo "[*] this ComfyUI has no WanVaceToVideo node; updating ComfyUI (GPU stack stays pinned)"
+        git -C "$COMFY_DIR" pull --ff-only
+        safe_pip -q -r "$COMFY_DIR/requirements.txt"
+    fi
+    grep -q "class WanVaceToVideo" "$COMFY_DIR/comfy_extras/nodes_wan.py" \
+        && echo "[✓] ComfyUI has WanVaceToVideo" \
+        || { echo "[!] still no WanVaceToVideo in $COMFY_DIR; update ComfyUI by hand" >&2; exit 1; }
+    node ComfyUI-VideoHelperSuite      https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git
+    node ComfyUI-KJNodes               https://github.com/kijai/ComfyUI-KJNodes.git
+    node ComfyUI-SeedVR2_VideoUpscaler https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git
+    node ComfyUI-RMBG                  https://github.com/1038lab/ComfyUI-RMBG.git
+    mkdir -p "$COMFY_DIR/models/diffusion_models" "$COMFY_DIR/models/text_encoders" "$COMFY_DIR/models/vae" \
+             "$COMFY_DIR/models/SEEDVR2"
+;; esac
+
+case "$GROUP" in matanyone)
+    node ComfyUI_MatAnyone_Kytra https://github.com/KytraScript/ComfyUI_MatAnyone_Kytra.git
+;; esac
+
+case "$GROUP" in audio|video|yvann-deps|previz|police-bike|matanyone|all) ;; *)
+    echo "usage: install_audio_video.sh audio|video|yvann-deps|previz|police-bike|matanyone|all" >&2; exit 2 ;;
 esac
 
 repair_onnxruntime

@@ -4,6 +4,10 @@
 > time. I'll paste the terminal output after each step."* Gemini: please follow the steps in order, give me
 > one step at a time, and wait for my output before moving on.
 
+> **Police Bike project:** use guide 05 (`docs/gemini/05_police_bike_comfyui.md`) instead. It uses Wan VACE,
+> keeps every frame, writes PNG sequences, and handles chunking and loops. This guide (SD1.5 + AnimateDiff → MP4)
+> is the older, quicker route for general previz shots.
+
 ---
 
 ## Context for Gemini (read first)

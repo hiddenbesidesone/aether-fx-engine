@@ -24,9 +24,10 @@ Format: date/time · what was asked · what was done · state / next step.
 | Guide | Pipeline | State |
 |---|---|---|
 | 01 | Image → 3D + Gaussian splat (TRELLIS) | ✅ verified on pod · multi-view + tidy + turntable views added; **next: first multi-view run on pod** (SOP `docs/sop/01_…`) |
-| 02 | Audio: Stable Audio / MusicGen / Demucs | ⏸ paused mid-run (user back to it later) |
+| 02 | Audio: Stable Audio / MusicGen / Demucs | 🔄 in progress with Gemini, **not finished** (as of 2026-11-19) |
 | 03 | Video Foley + audio-reactive | ⬜ not run yet |
-| 04 | Blender previz → video (AnimateDiff + ControlNet) | ⬜ ready, waits until 02 is done, then `git pull` on pod first |
+| 04 | Blender previz → video (AnimateDiff + ControlNet) | ⬜ ready; general route. Police Bike uses 05 instead |
+| 05 | **Police Bike** (Wan VACE world, rider matte, composite) | ⬜ ready for its first run, after 02. Start with Step 8 go/no-go. Brief: `docs/projects/police-bike/brief.md` |
 
 Known risk for 04: `controlnet_aux` requirements may change numpy/onnxruntime; guide Step 3 stops if so.
 Paste the output to Claude.
@@ -68,3 +69,15 @@ Paste the output to Claude.
 
 - **2026-11-13 ~15:20** · Session cut off again (4th time). User pasted my last message. Checked: branch is in sync with
   origin at ed3a750, working tree clean, nothing lost. No new work. **Next:** unchanged. Guide 02 (audio) with Gemini, then guide 04 after a `git pull` on the pod.
+
+- **2026-11-19** · User: guide 02 (audio) with Gemini is **still not finished**. New project brief: **Police Bike** music video
+  (saved as `docs/projects/police-bike/brief.md`). Checked it against guide 04: 04 covers only the "older route" of Workflow 2
+  (SD1.5 AnimateDiff, resizes, MP4), so it isn't enough. Built guide **05** `docs/gemini/05_police_bike_comfyui.md`:
+  W2 `scripts/render_world_vace.py` + template `wan_vace_depth_to_video.json` (native WanVaceToVideo, PNG in → PNG out with
+  the same frame numbers, 4k+1 chunks carrying 13 generated frames over with a VACE keep-mask, a seamless `--loop` join pass, `--prompt-at`
+  schedule, `--resume`, 1.3B/14B, fp8); W1 upscale + matte to be built by hand in the UI (SeedVR2 + BiRefNet/MatAnyone) +
+  `scripts/rider_rgba.py` (unmix + despill that keeps the yellow-green jacket); W3 `scripts/composite_shot.py`. Installer group
+  `police-bike` (updates ComfyUI only if WanVaceToVideo is missing), `matanyone`; downloads `wan-vace`, `wan-vace-14b`.
+  80 tests pass (mock server only; nothing has run on a GPU yet). User also asked if Claude can drive RunPod directly: `runpodctl` 3.1.1 + an SSH key
+  are configured on the Mac, so yes, with the user's go-ahead per pod start. Noticed **3 pods named blender-lab-bear-macro-full-1
+  RUNNING** (RTX PRO 4000) and flagged them to the user. **Next:** finish 02, then 05 Step 8 (go/no-go), on the pod or driven by Claude.

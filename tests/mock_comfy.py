@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import io
 import json
 import threading
 import uuid
 from pathlib import Path
 
 from aiohttp import WSMsgType, web
+from PIL import Image
 
 TEMPLATES = Path(__file__).resolve().parents[1] / "workflows" / "templates"
 FREE_TEXT_INPUTS = {"text", "project_name", "filename_prefix", "background_color", "prompt", "negative_prompt"}
@@ -44,6 +46,11 @@ def object_info_from_templates() -> dict:
     # Added by render_blender_video.py --clay rather than present in a template.
     info["DepthAnythingV2Preprocessor"] = {"input": {"required": {"image": ["IMAGE"], "ckpt_name": [[
         "depth_anything_v2_vitl.pth", "depth_anything_v2_vits.pth"]]}, "optional": {"resolution": ["INT", {}]}}}
+    # Optional on the real node (comfy_extras/nodes_wan.py); render_world_vace.py drops or adds them per chunk.
+    vace = info["WanVaceToVideo"]["input"]
+    vace["optional"].update(control_video=["IMAGE"], control_masks=["MASK"], reference_image=["IMAGE"])
+    for key in ("control_video", "control_masks"):
+        vace["required"].pop(key)
     info["ImageBatch"] = {"input": {"required": {"image1": ["IMAGE"], "image2": ["IMAGE"]}}}  # generate_3d_asset multi-view
     info["Canny"] = {"input": {"required": {"image": ["IMAGE"], "low_threshold": ["FLOAT", {}],
                                             "high_threshold": ["FLOAT", {}]}}}
@@ -167,11 +174,16 @@ class MockComfy:
             cls, inp = node["class_type"], node["inputs"]
             if cls == "SaveImage":
                 n = next((x["inputs"]["amount"] for x in workflow.values() if x["class_type"] == "RepeatLatentBatch"), 1)
+                vace = next((x["inputs"] for x in workflow.values() if x["class_type"] == "WanVaceToVideo"), None)
+                if vace:  # one real frame per generated video frame, so chunks can be chained
+                    n = vace["length"]
+                    buf = io.BytesIO()
+                    Image.new("RGB", (vace["width"], vace["height"]), (40, 80, 120)).save(buf, "PNG")
                 imgs = []
                 for i in range(n):
                     sub, _, pre = inp["filename_prefix"].rpartition("/")
                     name = f"{pre}_{i:05d}_.png"
-                    self.files[(sub, name)] = b"png"
+                    self.files[(sub, name)] = buf.getvalue() if vace else b"png"
                     imgs.append({"filename": name, "subfolder": sub, "type": "output"})
                 outputs[nid] = {"images": imgs}
             elif cls == "VHS_VideoCombine":

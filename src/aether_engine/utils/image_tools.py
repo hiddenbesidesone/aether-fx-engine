@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 
 import numpy as np
@@ -195,3 +196,14 @@ def fit_size(width: int, height: int, short_side: int = 512, multiple: int = 8) 
         return max(multiple, int(round(v * scale / multiple)) * multiple)
 
     return snap(width), snap(height)
+
+
+def frame_number(path: Path, index: int = 0) -> str:
+    """'depth_0042.png' -> '0042' (the last run of digits), else ``index + 1`` padded to 4."""
+    digits = re.findall(r"\d+", Path(path).stem)
+    return digits[-1] if digits else f"{index + 1:04d}"
+
+
+def frames_by_number(directory: Path) -> dict[int, Path]:
+    """Frames keyed by their frame number, so sequences with different prefixes line up."""
+    return {int(frame_number(p, i)): p for i, p in enumerate(list_frames(directory))}

@@ -1,0 +1,215 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "wan2.1_vace_1.3B_fp16.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "diffusion_model"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan"
+    },
+    "_meta": {
+      "title": "text_encoder"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    },
+    "_meta": {
+      "title": "vae"
+    }
+  },
+  "4": {
+    "class_type": "ModelSamplingSD3",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "shift": 8.0
+    },
+    "_meta": {
+      "title": "shift"
+    }
+  },
+  "5": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "rainy neon city street at night, cinematic",
+      "clip": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "positive_prompt"
+    }
+  },
+  "6": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "flicker, blurry, low quality, distorted, watermark, text, people, person, policeman, motorcycle, rider",
+      "clip": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "negative_prompt"
+    }
+  },
+  "7": {
+    "class_type": "VHS_LoadImages",
+    "inputs": {
+      "directory": "aether_control",
+      "image_load_cap": 0,
+      "skip_first_images": 0,
+      "select_every_nth": 1
+    },
+    "_meta": {
+      "title": "control_frames"
+    }
+  },
+  "8": {
+    "class_type": "VHS_LoadImages",
+    "inputs": {
+      "directory": "aether_mask",
+      "image_load_cap": 0,
+      "skip_first_images": 0,
+      "select_every_nth": 1
+    },
+    "_meta": {
+      "title": "mask_frames"
+    }
+  },
+  "9": {
+    "class_type": "ImageToMask",
+    "inputs": {
+      "image": [
+        "8",
+        0
+      ],
+      "channel": "red"
+    },
+    "_meta": {
+      "title": "mask"
+    }
+  },
+  "10": {
+    "class_type": "WanVaceToVideo",
+    "inputs": {
+      "positive": [
+        "5",
+        0
+      ],
+      "negative": [
+        "6",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "width": 768,
+      "height": 432,
+      "length": 81,
+      "batch_size": 1,
+      "strength": 1.0,
+      "control_video": [
+        "7",
+        0
+      ],
+      "control_masks": [
+        "9",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "vace"
+    }
+  },
+  "11": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "4",
+        0
+      ],
+      "seed": 0,
+      "steps": 20,
+      "cfg": 6.0,
+      "sampler_name": "uni_pc",
+      "scheduler": "simple",
+      "positive": [
+        "10",
+        0
+      ],
+      "negative": [
+        "10",
+        1
+      ],
+      "latent_image": [
+        "10",
+        2
+      ],
+      "denoise": 1.0
+    },
+    "_meta": {
+      "title": "sampler"
+    }
+  },
+  "12": {
+    "class_type": "TrimVideoLatent",
+    "inputs": {
+      "samples": [
+        "11",
+        0
+      ],
+      "trim_amount": [
+        "10",
+        3
+      ]
+    },
+    "_meta": {
+      "title": "trim"
+    }
+  },
+  "13": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "12",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "decode"
+    }
+  },
+  "14": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "13",
+        0
+      ],
+      "filename_prefix": "AetherFX/world"
+    },
+    "_meta": {
+      "title": "frames_out"
+    }
+  }
+}

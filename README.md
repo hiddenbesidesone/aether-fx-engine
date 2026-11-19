@@ -14,6 +14,8 @@ CLIs that run on the pod or on a Mac.
 | Foley / ambience from video (MMAudio), muxed into the MP4 | `scripts/add_foley.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/03_…` |
 | Audio-reactive animation (Yvann nodes + AnimateDiff) | Yvann's example workflows in the ComfyUI UI | 🟡 Install + models scripted; no CLI. Guide: `docs/gemini/03_…` |
 | Blender previz (depth/normal passes, or a clay viewport render) → AnimateDiff video | `scripts/render_blender_video.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/04_…` |
+| Depth sequence → AI world PNGs, frame for frame (Wan 2.1 VACE; chunks, seamless loops, prompt schedule) | `scripts/render_world_vace.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/05_…` |
+| Green-screen rider → RGBA with despill; world × shadow + rider composite | `scripts/rider_rgba.py`, `scripts/composite_shot.py` | 🟢 Tested locally (plain Python). Guide: `docs/gemini/05_…` |
 | Batch SDXL brand restyle (LoRA + IP-Adapter + depth) | `scripts/run_brand_stylizer.py` | 🟡 Built, mock-tested; not yet run on a GPU |
 | Hunyuan3D-2 mesh (alternative 3D engine) | `scripts/generate_3d_asset.py --engine hunyuan` | 🟡 Built, mock-tested; no install guide yet |
 
@@ -29,6 +31,7 @@ models haven't been run.
 | `docs/gemini/02_audio_music_and_stems.md` | Stable Audio Open, MusicGen, Demucs: install, gated-model download, runs |
 | `docs/gemini/03_video_foley_and_audio_reactive.md` | MMAudio Foley CLI; Yvann audio-reactive workflows in the UI |
 | `docs/gemini/04_blender_previz_to_video.md` | AnimateDiff + ControlNet install, models, clay-render and depth-pass runs |
+| `docs/gemini/05_police_bike_comfyui.md` | Police Bike: Wan VACE depth → world (chunks, loops), SeedVR2 + matte + despill, composite |
 | `docs/runpod_comfyui_liveportrait_setup_guide.md` | LivePortrait: InsightFace symlink, onnxruntime-gpu 1.26 pin, ldconfig |
 | `docs/3d_ai_to_blender_workflow_guide.md` | Input prep, Blender retopology and doll/plastic shaders |
 

@@ -5,11 +5,14 @@
 #   bash scripts/runpod/download_models.sh mmaudio        # Foley from video (~5 GB, public)
 #   bash scripts/runpod/download_models.sh yvann          # Yvann audio-reactive Text-to-Video example (~5 GB)
 #   bash scripts/runpod/download_models.sh previz         # Blender previz -> video: SD1.5, AnimateDiff v3, ControlNets (~6.5 GB)
+#   bash scripts/runpod/download_models.sh wan-vace       # Police Bike world: Wan 2.1 VACE 1.3B + text encoder + VAE (~11 GB)
+#   bash scripts/runpod/download_models.sh wan-vace-14b   # the 14B VACE model for quality runs (~35 GB more)
 #
 # Models that download themselves on first use (into /workspace, see env.sh):
 #   TRELLIS-image-large -> models/checkpoints/   DINOv2 -> $TORCH_HOME   BiRefNet -> models/RMBG/
 #   MusicGen            -> models/musicgen/      Demucs -> $TORCH_HOME   BigVGAN  -> models/mmaudio/nvidia/
 #   Depth Anything V2   -> custom_nodes/comfyui_controlnet_aux/ckpts/
+#   SeedVR2             -> models/SEEDVR2/
 #
 # Stable Audio Open is gated: open https://huggingface.co/stabilityai/stable-audio-open-1.0 while
 # logged in, accept the license, create a read token at https://huggingface.co/settings/tokens, then
@@ -70,7 +73,17 @@ previz)
         fetch comfyanonymous/ControlNet-v1-1_fp16_safetensors "$f" "$M/controlnet/$f"
     done
     ;;
+wan-vace|wan-vace-14b)
+    # The names workflows/templates/wan_vace_depth_to_video.json and render_world_vace.py expect.
+    W=Comfy-Org/Wan_2.1_ComfyUI_repackaged
+    fetch $W split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors \
+        "$M/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors"
+    fetch $W split_files/vae/wan_2.1_vae.safetensors "$M/vae/wan_2.1_vae.safetensors"
+    size=1.3B; [ "$1" = wan-vace-14b ] && size=14B
+    fetch $W "split_files/diffusion_models/wan2.1_vace_${size}_fp16.safetensors" \
+        "$M/diffusion_models/wan2.1_vace_${size}_fp16.safetensors"
+    ;;
 *)
-    echo "usage: download_models.sh stable-audio|mmaudio|yvann|previz" >&2; exit 2 ;;
+    echo "usage: download_models.sh stable-audio|mmaudio|yvann|previz|wan-vace|wan-vace-14b" >&2; exit 2 ;;
 esac
 echo "[✓] done"
