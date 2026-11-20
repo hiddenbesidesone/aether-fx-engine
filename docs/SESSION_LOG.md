@@ -81,3 +81,7 @@ Paste the output to Claude.
   80 tests pass (mock server only; nothing has run on a GPU yet). User also asked if Claude can drive RunPod directly: `runpodctl` 3.1.1 + an SSH key
   are configured on the Mac, so yes, with the user's go-ahead per pod start. Noticed **3 pods named blender-lab-bear-macro-full-1
   RUNNING** (RTX PRO 4000) and flagged them to the user. **Next:** finish 02, then 05 Step 8 (go/no-go), on the pod or driven by Claude.
+
+- **2026-11-20** · Session cut off (5th time). User pasted my last message and asked for a re-print as actions. Checked: tree clean at
+  d8178c2. The 3 blender-lab-bear-macro-full-1 pods are **gone** now (`runpodctl pod list` shows only 4 EXITED pods). Re-printed the
+  to-do list. No new code. **Next:** unchanged. Finish 02, then 05 Step 8 (go/no-go).
