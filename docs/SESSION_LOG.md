@@ -85,3 +85,7 @@ Paste the output to Claude.
 - **2026-11-20** · Session cut off (5th time). User pasted my last message and asked for a re-print as actions. Checked: tree clean at
   d8178c2. The 3 blender-lab-bear-macro-full-1 pods are **gone** now (`runpodctl pod list` shows only 4 EXITED pods). Re-printed the
   to-do list. No new code. **Next:** unchanged. Finish 02, then 05 Step 8 (go/no-go).
+
+- **2026-11-21** · User checked the log was up to date before closing the chat. It was, and it was in sync with origin. Closing.
+  **Next on resume:** guide 02 (audio) with Gemini → pod setup (`git pull`, `install_audio_video.sh police-bike`,
+  `download_models.sh wan-vace`) → guide 05 Step 8 go/no-go → W1 rider workflow built in the UI (send the saved JSON to Claude to batch).
