@@ -25,7 +25,7 @@ Format: date/time · what was asked · what was done · state / next step.
 |---|---|---|
 | 01 | Image → 3D + Gaussian splat (TRELLIS) | ✅ verified on pod · multi-view + tidy + turntable views added; **next: first multi-view run on pod** (SOP `docs/sop/01_…`) |
 | 02 | Audio: Stable Audio / MusicGen / Demucs | 🔄 in progress with Gemini, **not finished** (as of 2026-11-19) |
-| 03 | Video Foley + audio-reactive | ✅ **Part A (Foley CLI) verified** on a fresh A40 pod (2026-11-23) · Part B (Yvann audio-reactive, UI) not tested |
+| 03 | Video Foley + audio-reactive | ✅ **Part A (Foley CLI) + Part B (Yvann Text-to-Video) both verified** on fresh A40 pods (2026-11-23) |
 | 04 | Blender previz → video (AnimateDiff + ControlNet) | ⬜ ready; general route. Police Bike uses 05 instead |
 | 05 | **Police Bike** (Wan VACE world, rider matte, composite) | ⬜ ready for its first run, after 02. Start with Step 8 go/no-go. Brief: `docs/projects/police-bike/brief.md` |
 
@@ -102,3 +102,14 @@ Paste the output to Claude.
   24 fps and 1280×720, AAC 44.1 kHz **mono**, about −17 LUFS. Ran once with a prompt and once without. Results in `output/test-03-foley/`
   (not in git). **Pod deleted** after downloading; about 15 min, roughly $0.15. Part B (Yvann audio-reactive) not tested: it needs about
   5 GB more models and the UI. **Next:** user listens to the results; decide on Part B. Otherwise unchanged (02 → 05 Step 8).
+
+- **2026-11-23 ~23:15–23:43 UTC** · User: both Foley clips are good (prompt and no prompt sound similar). Test Part B; guide 02 the same
+  way **after** this. Explained mono → stereo in Resolve, and Foley (video → sound) vs audio-reactive (sound → video).
+  Part B: no music on the Mac, so I made a synthetic 120 BPM drum loop. A throwaway **A40 at $0.59/hr** (EU-SE-1, no volume), fresh ComfyUI,
+  `install_audio_video.sh video` + `yvann-deps` and `download_models.sh yvann` all clean. Chrome couldn't open the pod proxy (curl could),
+  so I loaded the **AudioReactive_TextToVideo_Yvann** template in headless Chromium **on the pod** (Playwright → `app.loadGraphData` →
+  `graphToPrompt` → `/prompt`): set the audio, bypassed the 2x-sudo upscaler (node 735). No node errors; ran in 245 s.
+  Peaks detected exactly every 15 frames (0.5 s = 120 BPM). Visuals switch between orchids and swirls on the beats. **Gotcha:** the template's
+  frame count is fixed (100 frames at 30 fps = 3.3 s), so it ignores the audio length. Set it to `seconds × 30` for a full track.
+  Results in `output/test-03b-reactive/` (not in git). Pod deleted; both tests together cost about $0.50.
+  **Next:** guide 02 (audio) tested the same way by Claude, then 05 Step 8.
