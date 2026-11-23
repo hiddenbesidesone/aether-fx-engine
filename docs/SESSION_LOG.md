@@ -89,3 +89,7 @@ Paste the output to Claude.
 - **2026-11-21** · User checked the log was up to date before closing the chat. It was, and it was in sync with origin. Closing.
   **Next on resume:** guide 02 (audio) with Gemini → pod setup (`git pull`, `install_audio_video.sh police-bike`,
   `download_models.sh wan-vace`) → guide 05 Step 8 go/no-go → W1 rider workflow built in the UI (send the saved JSON to Claude to batch).
+
+- **2026-11-23** · User asked for a status check: where we are, what's next, what's open for them. Checked: tree clean and in sync
+  with origin at 35de227. `runpodctl pod list` is **empty** (the 4 EXITED pods are gone too, so nothing is billing). Summarised the
+  status board and the open decisions. No new code. **Next:** unchanged. Guide 02 → pod setup → 05 Step 8 go/no-go.
