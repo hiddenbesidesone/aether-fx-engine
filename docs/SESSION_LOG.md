@@ -25,7 +25,7 @@ Format: date/time · what was asked · what was done · state / next step.
 |---|---|---|
 | 01 | Image → 3D + Gaussian splat (TRELLIS) | ✅ verified on pod · multi-view + tidy + turntable views added; **next: first multi-view run on pod** (SOP `docs/sop/01_…`) |
 | 02 | Audio: Stable Audio / MusicGen / Demucs | 🔄 in progress with Gemini, **not finished** (as of 2026-11-19) |
-| 03 | Video Foley + audio-reactive | ⬜ not run yet |
+| 03 | Video Foley + audio-reactive | ✅ **Part A (Foley CLI) verified** on a fresh A40 pod (2026-11-23) · Part B (Yvann audio-reactive, UI) not tested |
 | 04 | Blender previz → video (AnimateDiff + ControlNet) | ⬜ ready; general route. Police Bike uses 05 instead |
 | 05 | **Police Bike** (Wan VACE world, rider matte, composite) | ⬜ ready for its first run, after 02. Start with Step 8 go/no-go. Brief: `docs/projects/police-bike/brief.md` |
 
@@ -93,3 +93,12 @@ Paste the output to Claude.
 - **2026-11-23** · User asked for a status check: where we are, what's next, what's open for them. Checked: tree clean and in sync
   with origin at 35de227. `runpodctl pod list` is **empty** (the 4 EXITED pods are gone too, so nothing is billing). Summarised the
   status board and the open decisions. No new code. **Next:** unchanged. Guide 02 → pod setup → 05 Step 8 go/no-go.
+
+- **2026-11-23 ~21:20–21:36 UTC** · User asked me to start a cheap pod, test guide 03 myself and report back. EU-NL-1 (where
+  `aether-fx-storage` lives) had **no GPUs at all**, so I used a throwaway **A40 at $0.59/hr in EU-SE-1** with no network volume
+  (image `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`, a fresh ComfyUI with a `--system-site-packages` venv, repo sent with `git archive`).
+  Guide 03 Steps 2–4 + A1–A2 all passed on the first try: `install_audio_video.sh video` clean, `download_models.sh mmaudio` 5 GB,
+  ComfyUI 0.46.0 with no import failures. `add_foley.py` on `waves.mp4` (8 s, 24 fps): 63 s the first time, 42 s warm. Output keeps
+  24 fps and 1280×720, AAC 44.1 kHz **mono**, about −17 LUFS. Ran once with a prompt and once without. Results in `output/test-03-foley/`
+  (not in git). **Pod deleted** after downloading; about 15 min, roughly $0.15. Part B (Yvann audio-reactive) not tested: it needs about
+  5 GB more models and the UI. **Next:** user listens to the results; decide on Part B. Otherwise unchanged (02 → 05 Step 8).
