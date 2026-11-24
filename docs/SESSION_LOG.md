@@ -131,3 +131,12 @@ Paste the output to Claude.
   BigVGAN download pulls **1.9 GB** (including the discriminator/optimizer). Worth pre-fetching in `download_models.sh mmaudio` for the user's volume.
   Pod deleted. **Noticed a pod not started by me:** `blender-lab-bear-fall-test4-1` (RTX 4090, $0.89/hr, created 00:48 UTC), left alone and
   flagged to the user. **Next:** user listens; guide 02 (Stable Audio licence question still open).
+
+- **2026-11-24** · User feedback on the Foley tests: they all sound similar and noise-like (typewriter/rain/fire). Only the zoom into the
+  bear's eye (smuggle_bear noprompt) felt precise. Measured spectral flatness: user clips 0.13–0.29 vs waves 0.13, so they are as noisy as
+  literal waves (the bear prompt is the noisiest). Diagnosis: MMAudio is trained on real-world video, so for abstract or stylised CG it falls back to texture;
+  it syncs well to clear visual events; "ambient, reverb" probably pushes towards noise (reverb is better added in Resolve). Proposed a re-run:
+  concrete sound-source prompts, negative "white noise, static, crackling, rain, fire, typewriter", cfg 6–7, plus a version without
+  "ambient, reverb". Recommended the workflow **Stable Audio stereo bed + MMAudio sync hits + mix/reverb in Resolve**.
+  User: yes to Stable Audio if it's good; Claude said it's worth it. **Waiting on the user:** accept the HF licence and `! hf auth login`.
+  **Next:** one pod for guide 02 (Stable Audio + MusicGen + Demucs) + the Foley re-run + Stable Audio beds for the 3 clips.
