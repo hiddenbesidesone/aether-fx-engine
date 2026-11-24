@@ -113,3 +113,7 @@ Paste the output to Claude.
   frame count is fixed (100 frames at 30 fps = 3.3 s), so it ignores the audio length. Set it to `seconds × 30` for a full track.
   Results in `output/test-03b-reactive/` (not in git). Pod deleted; both tests together cost about $0.50.
   **Next:** guide 02 (audio) tested the same way by Claude, then 05 Step 8.
+
+- **2026-11-24** · User asked what Part B's source is. Explained: audio + text prompts in → brand-new generated video out (music unchanged);
+  Foley is the reverse. Mentioned the untested Images-to-Video and Video-to-Video examples (V2V restyles existing footage to the beat;
+  may suit Police Bike). No code change. **Next:** unchanged. Guide 02 tested by Claude when the user says go.
