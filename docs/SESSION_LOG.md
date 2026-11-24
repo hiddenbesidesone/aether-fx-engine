@@ -123,3 +123,11 @@ Paste the output to Claude.
   ambience/texture beds (≤47 s, gated on HF), MusicGen = tempo-ish scratch music (≤30 s, tempo not locked), Demucs = 4-stem split.
   **Open for user:** include Stable Audio in the 02 test? (They accept the HF licence and run `hf auth login`; Claude never types the
   token.) MusicGen + Demucs can be tested without it. **Next:** Foley test on the user's clips when dropped; guide 02 test.
+
+- **2026-11-24 ~00:30–00:52 UTC** · Foley test on the user's 3 clips in `inputs/foley-tests/` (censor_figure 12 s, smoke-vessel 10 s,
+  smuggle_bear_assembly 8.25 s), each with no prompt and with a prompt (rule from the user: **prompts always include "ambient, reverb"** plus
+  per-clip detail), seed 42. A throwaway A40 ($0.59/hr). All 6 OK, about 56 s each. Results in `output/foley-tests/` (not in git). The bear clip
+  is quiet (about −31 LUFS vs −19 to −22 for the others), so raise it in the edit. HF downloads were slow on this host; MMAudio's first-use
+  BigVGAN download pulls **1.9 GB** (including the discriminator/optimizer). Worth pre-fetching in `download_models.sh mmaudio` for the user's volume.
+  Pod deleted. **Noticed a pod not started by me:** `blender-lab-bear-fall-test4-1` (RTX 4090, $0.89/hr, created 00:48 UTC), left alone and
+  flagged to the user. **Next:** user listens; guide 02 (Stable Audio licence question still open).
