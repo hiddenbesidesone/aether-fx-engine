@@ -128,6 +128,9 @@ def test_add_foley(comfy, tmp_path):
     assert nodes["video_25fps"]["inputs"]["force_rate"] == 25
     assert nodes["foley"]["inputs"]["duration"] == 6
     assert nodes["foley"]["inputs"]["prompt"] == "toy footsteps"
+    # defaults that kept stylised clips from turning into rain/static texture
+    assert nodes["foley"]["inputs"]["cfg"] == 6.5
+    assert "white noise" in nodes["foley"]["inputs"]["negative_prompt"]
     # the muxed video keeps the source frame rate (linked from VHS_VideoInfo.source_fps)
     info_id = next(nid for nid, n in comfy.prompts[-1].items() if n["_meta"]["title"] == "source_info")
     assert nodes["video_out"]["inputs"]["frame_rate"] == [info_id, 0]

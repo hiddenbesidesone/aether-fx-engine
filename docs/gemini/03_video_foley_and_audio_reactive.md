@@ -17,7 +17,8 @@ I'm running ComfyUI on a **RunPod GPU pod** and working in the **JupyterLab term
 | **Audio-reactive animation**: `ComfyUI_Yvann-Nodes` | Analyses a track (beats, stems) and drives AnimateDiff, IP-Adapter and ControlNet with it | The pack's own example workflows, in the **ComfyUI web UI** |
 | **VideoHelperSuite** (VHS) | Video load/save and audio muxing; both tools use it | (support pack) |
 
-**Status:** the Foley CLI is built and tested against a fake server only, so **this is its first real run**.
+**Status:** both parts **verified on a real GPU** (fresh A40 pods, 2026-11-24): the Foley CLI on 4 clips, and the Yvann
+Text-to-Video example on a 120 BPM beat.
 The audio-reactive part ships no CLI. Its example graphs need several model files, so we start from the
 author's tested workflows in the UI.
 
@@ -70,11 +71,12 @@ bash scripts/runpod/install_audio_video.sh yvann-deps 2>&1 | tee -a /workspace/i
 
 ```bash
 cd /workspace/aether-fx-engine
-bash scripts/runpod/download_models.sh mmaudio   # ~5 GB -> models/mmaudio/ (public, no token)
+bash scripts/runpod/download_models.sh mmaudio   # ~5.5 GB -> models/mmaudio/ (public, no token)
 bash scripts/runpod/download_models.sh yvann     # ~5 GB -> checkpoints/, vae/, loras/, animatediff_models/
 ```
 
-- MMAudio also auto-downloads NVIDIA's BigVGAN vocoder into `models/mmaudio/nvidia/` on first use.
+- This also fetches NVIDIA's BigVGAN vocoder (2 files) into `models/mmaudio/nvidia/`. Without it, the node downloads
+  the whole vocoder repo (1.9 GB) the first time it runs, which can look like a hang.
 - The `yvann` set covers the **Text-to-Video** example. Its `2x-sudo-UltraCompact.pth` upscaler isn't on
   Hugging Face, so either bypass that node (select it, then Ctrl+B) or pick any 2x upscaler you have in
   `models/upscale_models/`.
@@ -127,7 +129,19 @@ Things to know:
   avoids music and speech).
 - The output MP4 keeps the clip's original frame rate. Internally, MMAudio watches a 25 fps, 384 px copy,
   because its sync model expects 25 fps.
-- `--seed N` makes a run repeatable; `--steps 25`, `--cfg 4.5`.
+- `--seed N` makes a run repeatable; `--steps 25`, `--cfg 6.5` (default).
+- **The default negative prompt** is `white noise, static, crackling, rain, fire, typewriter, music, speech, talking`.
+  Without the noise words (and at cfg 4.5), stylised or CG clips came out as rain/fire/static-like texture.
+
+**Prompting (tested):**
+
+- MMAudio learned from real-world video. It's precise on **clear visual events** (an impact, a sudden zoom, a cut) and
+  on recognisable sources (waves). On slow, abstract CG motion it falls back to texture, so name the sounds you want.
+- House style: start with `ambient, reverb, ` and then **concrete sound sources**, e.g.
+  `ambient, reverb, glass marble clink, metal spring boing, small rubber squeak, soft pop`.
+- Output is **mono**. For a stereo atmosphere, put a Stable Audio bed under it (guide 02) and mix in Resolve.
+- Levels vary a lot between clips (−6 to −31 LUFS seen), so normalise in the edit.
+- Two runs per clip (with and without a prompt, same seed) is a cheap way to compare.
 
 | Symptom | Likely cause / fix |
 |---|---|
@@ -151,7 +165,9 @@ Things to know:
    **Afterwards, run `source /workspace/aether-fx-engine/scripts/runpod/env.sh && repair_onnxruntime` in
    the terminal and restart with `start_comfy.sh`**, because Manager installs don't go through our safe
    installer.
-4. Load your audio in the audio loader node, set the prompts, and **Queue**. The examples use "Hybrid
+4. Load your audio in the audio loader node, set the prompts, and **set the frame count to match the audio**. The
+   template is fixed at **100 frames at 30 fps (3.3 s)** whatever the track length, so use seconds × 30 (8 s = 240).
+   Bypass the `2x-sudo-UltraCompact` upscaler group (Ctrl+B) unless you've added that model. Then **Queue**. The examples use "Hybrid
    Demucs" to split the track and drive the visuals from the drums or another stem. The result is saved
    by `VHS_VideoCombine` to `/workspace/ComfyUI/output/`.
 

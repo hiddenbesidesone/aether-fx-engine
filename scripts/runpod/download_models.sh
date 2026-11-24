@@ -2,7 +2,7 @@
 # Download model weights into ComfyUI/models on the persistent volume. Skips files already there.
 #
 #   bash scripts/runpod/download_models.sh stable-audio   # needs HF_TOKEN + license accepted (see below)
-#   bash scripts/runpod/download_models.sh mmaudio        # Foley from video (~5 GB, public)
+#   bash scripts/runpod/download_models.sh mmaudio        # Foley from video (~5.5 GB incl. vocoder, public)
 #   bash scripts/runpod/download_models.sh yvann          # Yvann audio-reactive Text-to-Video example (~5 GB)
 #   bash scripts/runpod/download_models.sh previz         # Blender previz -> video: SD1.5, AnimateDiff v3, ControlNets (~6.5 GB)
 #   bash scripts/runpod/download_models.sh wan-vace       # Police Bike world: Wan 2.1 VACE 1.3B + text encoder + VAE (~11 GB)
@@ -51,6 +51,11 @@ mmaudio)
     for f in mmaudio_large_44k_v2_fp16.safetensors mmaudio_vae_44k_fp16.safetensors \
              mmaudio_synchformer_fp16.safetensors apple_DFN5B-CLIP-ViT-H-14-384_fp16.safetensors; do
         fetch Kijai/MMAudio_safetensors "$f" "$M/mmaudio/$f"
+    done
+    # The 44k vocoder. The node downloads the whole repo on first use (1.9 GB, mostly the training-only
+    # discriminator) unless this folder exists; it only loads these two files.
+    for f in config.json bigvgan_generator.pt; do
+        fetch nvidia/bigvgan_v2_44khz_128band_512x "$f" "$M/mmaudio/nvidia/bigvgan_v2_44khz_128band_512x/$f"
     done
     ;;
 yvann)

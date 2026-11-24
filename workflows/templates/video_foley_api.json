@@ -77,10 +77,10 @@
       ],
       "duration": 8.0,
       "steps": 25,
-      "cfg": 4.5,
+      "cfg": 6.5,
       "seed": 0,
       "prompt": "",
-      "negative_prompt": "music, speech, talking",
+      "negative_prompt": "white noise, static, crackling, rain, fire, typewriter, music, speech, talking",
       "mask_away_clip": false,
       "force_offload": true,
       "images": [

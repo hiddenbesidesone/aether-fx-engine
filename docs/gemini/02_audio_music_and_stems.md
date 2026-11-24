@@ -17,7 +17,16 @@ I'm running ComfyUI on a **RunPod GPU pod** and working in the **JupyterLab term
 | Hip-hop beats at a set tempo (up to 30 s) | **Meta MusicGen**, node pack `ComfyUI-MusicGen-HF` | `scripts/generate_audio.py --engine musicgen --bpm 90 --bars 8` |
 | Split any track into bass / drums / other / vocals | **Hybrid Demucs**, node pack `audio-separation-nodes-comfyui` | `scripts/separate_stems.py`, or `--stems` on `generate_audio.py` |
 
-**Status:** built and tested against a fake server only. **This is the first real run.**
+**Status:** **verified on a real GPU** (a fresh A40 pod, 2026-11-24): Stable Audio, MusicGen + `--stems` and
+`separate_stems.py` all worked on the first run.
+
+**What each is good for (from the test):**
+
+- **Stable Audio Open:** ambience, drones, textures and beds, in **stereo**. This is the one to use under Foley. Levels vary a
+  lot between seeds (−13 to −38 LUFS seen), so generate 2–4 and normalise.
+- **MusicGen:** scratch or temp music only. The tempo isn't locked, and named instruments don't always appear (the "jazzy piano" was
+  missing; the stems showed drums + bass only).
+- **Demucs:** clean 4-stem splits. Use it to drive the audio-reactive visuals (guide 03 Part B) from the drums, or to duck music under Foley.
 
 What's already on the pod and working: ComfyUI plus a **LivePortrait** workflow. LivePortrait depends on
 `onnxruntime-gpu==1.26.0` (CUDA 12) and torch 2.8 / CUDA 12.8. **Don't break that.**
@@ -132,6 +141,7 @@ Options worth knowing (full list: `--help`):
 - `--bpm N` appends "N BPM" to the prompt. MusicGen and Stable Audio both respond to it, but **neither locks
   the tempo exactly**, so check the grid in your DAW. `--bars N` sets the length to N bars of 4/4 at that BPM.
 - `--name my_beat` names the output files; `--seed N` makes a run repeatable.
+- For beds under a video clip, use `--duration` a few seconds longer than the clip and trim in the edit.
 - Stable Audio: `--steps 50`, `--cfg 5`, `--negative "vocals, distortion"`.
 - MusicGen: `--model-size small|medium|large` (small ≈ 2.4 GB, large ≈ 14 GB download and noticeably slower), `--cfg 3`.
 

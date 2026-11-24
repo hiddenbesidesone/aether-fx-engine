@@ -29,17 +29,20 @@ from render_blender_video import faststart  # noqa: E402
 TEMPLATE = "video_foley_api.json"
 VIDEO_SUFFIXES = (".mp4", ".mov", ".webm", ".mkv")
 TRAINED_SECONDS = 8.0  # MMAudio's training clip length; quality drops on much longer clips
+# Tested 2026-11-24 on stylised CG clips: without the noise words in the negative prompt (template default)
+# and with cfg 4.5, MMAudio fell back to rain/fire/static-like texture.
+DEFAULT_CFG = 6.5
 
 
 def parse_args(argv=None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--video", type=Path, required=True)
     p.add_argument("--prompt", default="", help="what should be heard (optional; MMAudio also reads the picture)")
-    p.add_argument("--negative", default=None, help="what to avoid (default: music, speech)")
+    p.add_argument("--negative", default=None, help="what to avoid (default: white noise, static, crackling, rain, fire, typewriter, music, speech)")
     p.add_argument("--duration", type=float, default=None,
                    help="seconds of audio (default: the video's length via ffprobe, else 8)")
     p.add_argument("--steps", type=int, default=25)
-    p.add_argument("--cfg", type=float, default=4.5)
+    p.add_argument("--cfg", type=float, default=DEFAULT_CFG, help="prompt strength (default %(default)s)")
     p.add_argument("--output", type=Path, default=None, help="output .mp4 (default: exports/video/<name>_foley.mp4)")
     add_common_args(p)
     args = p.parse_args(argv)
