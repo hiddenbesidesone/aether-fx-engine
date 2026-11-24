@@ -24,7 +24,7 @@ Format: date/time · what was asked · what was done · state / next step.
 | Guide | Pipeline | State |
 |---|---|---|
 | 01 | Image → 3D + Gaussian splat (TRELLIS) | ✅ verified on pod · multi-view + tidy + turntable views added; **next: first multi-view run on pod** (SOP `docs/sop/01_…`) |
-| 02 | Audio: Stable Audio / MusicGen / Demucs | 🔄 in progress with Gemini, **not finished** (as of 2026-11-19) |
+| 02 | Audio: Stable Audio / MusicGen / Demucs | ✅ **verified by Claude** on a throwaway A40 (2026-11-24): all 3 CLIs work; HF login on the Mac (`~/.venvs/hf`, user gou-hb1) |
 | 03 | Video Foley + audio-reactive | ✅ **Part A (Foley CLI) + Part B (Yvann Text-to-Video) both verified** on fresh A40 pods (2026-11-23) |
 | 04 | Blender previz → video (AnimateDiff + ControlNet) | ⬜ ready; general route. Police Bike uses 05 instead |
 | 05 | **Police Bike** (Wan VACE world, rider matte, composite) | ⬜ ready for its first run, after 02. Start with Step 8 go/no-go. Brief: `docs/projects/police-bike/brief.md` |
@@ -140,3 +140,18 @@ Paste the output to Claude.
   "ambient, reverb". Recommended the workflow **Stable Audio stereo bed + MMAudio sync hits + mix/reverb in Resolve**.
   User: yes to Stable Audio if it's good; Claude said it's worth it. **Waiting on the user:** accept the HF licence and `! hf auth login`.
   **Next:** one pod for guide 02 (Stable Audio + MusicGen + Demucs) + the Foley re-run + Stable Audio beds for the 3 clips.
+
+- **2026-11-24 ~11:15–11:50 UTC** · User made a HF read token (`aether-runpod`) and logged in on the Mac (`~/.venvs/hf/bin/hf`, saved to
+  `~/.cache/huggingface/token`). Gated access to stable-audio-open-1.0 confirmed. One A40 pod ($0.59/hr): the token was copied to `/root/.hf_token`
+  (mode 600), used only for `download_models.sh stable-audio`, then **deleted**. **Guide 02 fully verified:** Stable Audio 40 s (stereo; quiet at
+  −38 LUFS, normalise it), MusicGen 90 BPM 8 bars + `--stems`, `separate_stems.py` (the beat is basically drums + bass; the "other" stem is near
+  silent, so no piano came through; the tempo hasn't been checked). Stable Audio **stereo beds**, 15 s × 2 seeds per user clip. **Foley re-run** with
+  negative "white noise, static, crackling, rain, fire, typewriter, music, speech" and cfg 6.5, as amb_reverb + concrete variants. Spectral
+  flatness dropped a lot (censor 0.13–0.16 → 0.04–0.06, smoke ~0.2 → 0.10); **the "ambient, reverb" variant came out *less* noisy than the
+  concrete one**, so my earlier guess was wrong: the negative prompt + cfg did the work. The bear concrete version is still noisy (0.32). The censor
+  concrete version peaks at 0 dBFS (may clip). Combined previews (bed s42 at −24 LUFS + amb_reverb Foley at −19 LUFS, stereo AAC) are in
+  `output/test-02-audio/combined/`. All in `output/test-02-audio/` (not in git). Pod deleted. Balance 33.27 → 26.90; this pod only cost about
+  $0.35, so the rest is most likely the `blender-lab-bear-fall-test4-1` 4090 pod (the API key has no billing:read to confirm).
+  VHS logs "Error opening output files" for silent source clips, which is harmless.
+  **Next:** user listens. Then guide 05 Step 8 (Police Bike go/no-go), or update guides/scripts with the findings (Foley negative default,
+  pre-fetch the BigVGAN vocoder, Yvann frame count = seconds × fps).
