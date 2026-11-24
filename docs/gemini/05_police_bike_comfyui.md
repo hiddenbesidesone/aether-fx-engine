@@ -14,7 +14,7 @@ an AI-painted world scrolls past and the camera zooms. The full brief is in the 
 
 | # | What | How it runs here | Status |
 |---|---|---|---|
-| **2** | **The world:** Blender depth frames → AI world frames, frame for frame, with **Wan 2.1 VACE** | `scripts/render_world_vace.py` (CLI; does chunking, loop joining, prompt schedule) | Built and tested against a fake server. **First real run: Steps 7-8 below, the go/no-go test** |
+| **2** | **The world:** Blender depth frames → AI world frames, frame for frame, with **Wan 2.1 VACE** | `scripts/render_world_vace.py` (CLI; does chunking, loop joining, prompt schedule) | **Go/no-go passed** on a real A40 (2026-11-24): use 14B (~21 min per 89 frames on an A40). Results: `docs/projects/police-bike/aether_side_status.md` |
 | 1 | **Rider:** green-screen clip → upscale (SeedVR2) → matte (BiRefNet / MatAnyone) → RGBA without green spill | Upscale and matte: built by hand in the ComfyUI UI (Step 10). Despill + RGBA: `scripts/rider_rgba.py` | UI part not built yet; despill script tested locally |
 | 3 | **Composite:** world × shadow, rider on top | `scripts/composite_shot.py` (plain Python, runs anywhere) | Tested locally |
 

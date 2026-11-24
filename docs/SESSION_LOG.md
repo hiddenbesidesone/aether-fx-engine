@@ -27,7 +27,7 @@ Format: date/time · what was asked · what was done · state / next step.
 | 02 | Audio: Stable Audio / MusicGen / Demucs | ✅ **verified by Claude** on a throwaway A40 (2026-11-24): all 3 CLIs work; HF login on the Mac (`~/.venvs/hf`, user gou-hb1) |
 | 03 | Video Foley + audio-reactive | ✅ **Part A (Foley CLI) + Part B (Yvann Text-to-Video) both verified** on fresh A40 pods (2026-11-23) |
 | 04 | Blender previz → video (AnimateDiff + ControlNet) | ⬜ ready; general route. Police Bike uses 05 instead |
-| 05 | **Police Bike** (Wan VACE world, rider matte, composite) | ⬜ ready for its first run, after 02. Start with Step 8 go/no-go. Brief: `docs/projects/police-bike/brief.md` |
+| 05 | **Police Bike** (Wan VACE world, rider matte, composite) | ✅ **W2 go/no-go passed** (2026-11-24, 14B). W1 (rider) and W3 still to run. Status for the Blender side: `docs/projects/police-bike/aether_side_status.md` |
 
 Known risk for 04: `controlnet_aux` requirements may change numpy/onnxruntime; guide Step 3 stops if so.
 Paste the output to Claude.
@@ -155,3 +155,14 @@ Paste the output to Claude.
   VHS logs "Error opening output files" for silent source clips, which is harmless.
   **Next:** user listens. Then guide 05 Step 8 (Police Bike go/no-go), or update guides/scripts with the findings (Foley negative default,
   pre-fetch the BigVGAN vocoder, Yvann frame count = seconds × fps).
+
+- **2026-11-24 ~11:55–15:20 UTC** · User: guides 02/03 results "pretty good", so update guides/scripts, commit, push, then guide 05 + an
+  explainer for the Claude chat preparing the Blender files. **Committed `973dcfc`:** add_foley cfg 6.5 + noise negative default (template),
+  download_models mmaudio pre-fetches the 2 BigVGAN files, guide 02/03 verified + notes (Yvann frame count), test asserting the Foley defaults (80 pass).
+  **Guide 05 Step 8** on a throwaway A40 ($0.59/hr, ~2 h, **$1.06**): Blender frames from `blender-lab-police-bike/renders/previews/police_bike/`
+  (loop 89 complete; **zoom only 119/267 rendered**). Installer `police-bike` clean (numpy 1.26.4 held), wan-vace + 14b downloaded fast.
+  8a 46 s; 8b loop 1.3B 5 min (dark, flat blue); loop 14B 21 min (**good**: neon, skyline, reflections, seamless wrap, no boiling); zoom 119f
+  1.3B 5 min and 14B 21 min (layout tracks the pull-back, chunk border clean, but wide framings go flat blue). **Verdict: GO, use 14B.**
+  Wrote `docs/projects/police-bike/aether_side_status.md` for the Blender chat. Results + side-by-side MP4s in `output/test-05-world/` (not in git).
+  Pod deleted. Gotcha: `ssh … 'nohup …&'` holds the ssh open unless the outer stdout is redirected too.
+  **Next:** the full zoom render from Blender; a 14B strength sweep + richer prompt / reference image; W1 rider needs rider clips.
