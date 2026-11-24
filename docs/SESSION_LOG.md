@@ -117,3 +117,9 @@ Paste the output to Claude.
 - **2026-11-24** · User asked what Part B's source is. Explained: audio + text prompts in → brand-new generated video out (music unchanged);
   Foley is the reverse. Mentioned the untested Images-to-Video and Video-to-Video examples (V2V restyles existing footage to the beat;
   may suit Police Bike). No code change. **Next:** unchanged. Guide 02 tested by Claude when the user says go.
+
+- **2026-11-24** · User expects to use Foley most and will prepare test clips. Created the drop folder `inputs/foley-tests/` (video is
+  gitignored; an optional `<clip>.txt` holds the prompt; 8–12 s clips with clear visible events). Explained guide 02's uses: Stable Audio =
+  ambience/texture beds (≤47 s, gated on HF), MusicGen = tempo-ish scratch music (≤30 s, tempo not locked), Demucs = 4-stem split.
+  **Open for user:** include Stable Audio in the 02 test? (They accept the HF licence and run `hf auth login`; Claude never types the
+  token.) MusicGen + Demucs can be tested without it. **Next:** Foley test on the user's clips when dropped; guide 02 test.
