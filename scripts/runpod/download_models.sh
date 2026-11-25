@@ -7,6 +7,8 @@
 #   bash scripts/runpod/download_models.sh previz         # Blender previz -> video: SD1.5, AnimateDiff v3, ControlNets (~6.5 GB)
 #   bash scripts/runpod/download_models.sh wan-vace       # Police Bike world: Wan 2.1 VACE 1.3B + text encoder + VAE (~11 GB)
 #   bash scripts/runpod/download_models.sh wan-vace-14b   # the 14B VACE model for quality runs (~35 GB more)
+#   bash scripts/runpod/download_models.sh flf-wan22      # start + end frame -> video: Wan 2.2 I2V 14B fp8 (+ 4-step LoRAs) (~37 GB)
+#   bash scripts/runpod/download_models.sh flf-ltx23      # start + end frame -> video: LTX 2.3 22B distilled fp8 + Gemma 3 (~38 GB)
 #
 # Models that download themselves on first use (into /workspace, see env.sh):
 #   TRELLIS-image-large -> models/checkpoints/   DINOv2 -> $TORCH_HOME   BiRefNet -> models/RMBG/
@@ -88,7 +90,26 @@ wan-vace|wan-vace-14b)
     fetch $W "split_files/diffusion_models/wan2.1_vace_${size}_fp16.safetensors" \
         "$M/diffusion_models/wan2.1_vace_${size}_fp16.safetensors"
     ;;
+flf-wan22)
+    # The files ComfyUI's own video_wan2_2_14B_flf2v template uses (two experts: high noise, then low noise).
+    W=Comfy-Org/Wan_2.2_ComfyUI_Repackaged
+    fetch Comfy-Org/Wan_2.1_ComfyUI_repackaged split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors \
+        "$M/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors"
+    fetch $W split_files/vae/wan_2.1_vae.safetensors "$M/vae/wan_2.1_vae.safetensors"
+    for n in high low; do
+        fetch $W "split_files/diffusion_models/wan2.2_i2v_${n}_noise_14B_fp8_scaled.safetensors" \
+            "$M/diffusion_models/wan2.2_i2v_${n}_noise_14B_fp8_scaled.safetensors"
+        fetch $W "split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_${n}_noise.safetensors" \
+            "$M/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_${n}_noise.safetensors"
+    done
+    ;;
+flf-ltx23)
+    # The files ComfyUI's own video_ltx2_3_flf2v template uses.
+    fetch Lightricks/LTX-2.3-fp8 ltx-2.3-22b-distilled-fp8.safetensors "$M/checkpoints/ltx-2.3-22b-distilled-fp8.safetensors"
+    fetch Comfy-Org/ltx-2 split_files/text_encoders/gemma_3_12B_it_fp4_mixed.safetensors \
+        "$M/text_encoders/gemma_3_12B_it_fp4_mixed.safetensors"
+    ;;
 *)
-    echo "usage: download_models.sh stable-audio|mmaudio|yvann|previz|wan-vace|wan-vace-14b" >&2; exit 2 ;;
+    echo "usage: download_models.sh stable-audio|mmaudio|yvann|previz|wan-vace|wan-vace-14b|flf-wan22|flf-ltx23" >&2; exit 2 ;;
 esac
 echo "[✓] done"

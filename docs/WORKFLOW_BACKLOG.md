@@ -6,7 +6,8 @@ What's left to build or test in aether-fx-engine, gathered from the docs (README
 ## Verified on a real GPU (done)
 
 LivePortrait stylised · TRELLIS image → mesh + splat (single view) · Audio: Stable Audio, MusicGen, Demucs (02) ·
-Foley MMAudio + Yvann Text-to-Video (03) · Police Bike W2 world, Wan VACE (05).
+Foley MMAudio + Yvann Text-to-Video (03) · Police Bike W2 world, Wan VACE (05) · **C2 start/end frame → 1080p24 video
+(Wan 2.2 + SeedVR2 + RIFE), which also covers C3 upscaling** (`render_flf_video.py`, SOP 02) · W3 composite preview (local).
 
 ## A. Built, but never run on a GPU
 
@@ -34,8 +35,8 @@ Foley MMAudio + Yvann Text-to-Video (03) · Police Bike W2 world, Wan VACE (05).
 | # | Workflow | Why | Reuses |
 |---|---|---|---|
 | C1 | **Sound pass CLI**: a folder of shots → Foley per shot (with and without a prompt) + a Stable Audio stereo bed → a rough stereo mix per shot | Foley is the tool the user expects to use most; this automates what was done by hand on 2026-11-24 | `add_foley.py`, `generate_audio.py`, ffmpeg mixing |
-| C2 | **First/last-frame image-to-video** (Wan 2.2 FLF2V or similar) | The Police Bike rider clips are made with start + end frame = the home pose; doing this in ComfyUI keeps it in-house and repeatable. Also covers ideas #3 | Wan models already on the pod workflow |
-| C3 | **Standalone video upscaler** (SeedVR2) for any clip | Needed for W1 and the Police Bike finals anyway; useful on its own | The W1 work |
+| C2 ✅ | **First/last-frame image-to-video** (Wan 2.2 FLF2V; built 2026-11-25) | The Police Bike rider clips are made with start + end frame = the home pose; doing this in ComfyUI keeps it in-house and repeatable. Also covers ideas #3 | Wan models already on the pod workflow |
+| C3 ½ | **Standalone video upscaler** (SeedVR2). Inside C2 now; a standalone CLI is still to do | Needed for W1 and the Police Bike finals anyway; useful on its own | The W1 work |
 | C4 | **Real footage → restyled world**: video → depth (DepthAnythingV2, already in `custom_nodes.json`) → W2 VACE | Uses the proven W2 pipeline on any filmed or AI clip, not just Blender greyboxes | `render_world_vace.py` |
 | C5 | **Wan 2.2 vs 2.1** for W2 | A possible quality jump for the same layout control | `render_world_vace.py` templates |
 
