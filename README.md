@@ -10,11 +10,11 @@ CLIs that run on the pod or on a Mac.
 |---|---|---|
 | Stylized LivePortrait (image + driving video → talking clip) | `scripts/run_stylized_liveportrait.py` | ✅ **Tested on RunPod.** Setup quirks: `docs/runpod_comfyui_liveportrait_setup_guide.md` |
 | Concept image(s) → 3D mesh `.glb` + Gaussian splat `.ply` (TRELLIS) | `scripts/generate_3d_asset.py`, then `scripts/blender/tidy_trellis_asset.py` | ✅ **Tested on RunPod (L40S)**: single-view mesh (`fast` + `opt` 2048 texture) and splat. 🟡 Multi-view (several images / turntable folder) mock-tested only. Not yet tried on Blackwell. SOP: `docs/sop/01_…` |
-| Music / soundscapes (Stable Audio Open, MusicGen) + Demucs stems | `scripts/generate_audio.py`, `scripts/separate_stems.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/02_…` |
-| Foley / ambience from video (MMAudio), muxed into the MP4 | `scripts/add_foley.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/03_…` |
-| Audio-reactive animation (Yvann nodes + AnimateDiff) | Yvann's example workflows in the ComfyUI UI | 🟡 Install + models scripted; no CLI. Guide: `docs/gemini/03_…` |
+| Music / soundscapes (Stable Audio Open, MusicGen) + Demucs stems | `scripts/generate_audio.py`, `scripts/separate_stems.py` | ✅ **Tested on RunPod (A40, 2026-11-24).** Guide: `docs/gemini/02_…` |
+| Foley / ambience from video (MMAudio), muxed into the MP4 | `scripts/add_foley.py` | ✅ **Tested on RunPod (A40, 2026-11-24).** Defaults: cfg 6.5 + noise-blocking negative. Guide: `docs/gemini/03_…` |
+| Audio-reactive animation (Yvann nodes + AnimateDiff) | Yvann's example workflows in the ComfyUI UI | ✅ Text-to-Video example **tested on RunPod**; no CLI. Guide: `docs/gemini/03_…` |
 | Blender previz (depth/normal passes, or a clay viewport render) → AnimateDiff video | `scripts/render_blender_video.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/04_…` |
-| Depth sequence → AI world PNGs, frame for frame (Wan 2.1 VACE; chunks, seamless loops, prompt schedule) | `scripts/render_world_vace.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/05_…` |
+| Depth sequence → AI world PNGs, frame for frame (Wan 2.1 VACE; chunks, seamless loops, prompt schedule) | `scripts/render_world_vace.py` | ✅ **Go/no-go passed on RunPod (A40, 14B, 2026-11-24).** Guide: `docs/gemini/05_…` |
 | Green-screen rider → RGBA with despill; world × shadow + rider composite | `scripts/rider_rgba.py`, `scripts/composite_shot.py` | 🟢 Tested locally (plain Python). Guide: `docs/gemini/05_…` |
 | Batch SDXL brand restyle (LoRA + IP-Adapter + depth) | `scripts/run_brand_stylizer.py` | 🟡 Built, mock-tested; not yet run on a GPU |
 | Hunyuan3D-2 mesh (alternative 3D engine) | `scripts/generate_3d_asset.py --engine hunyuan` | 🟡 Built, mock-tested; no install guide yet |
@@ -22,6 +22,8 @@ CLIs that run on the pod or on a Mac.
 "Mock-tested" means the CLI, payload and output handling pass `pytest` against an in-process fake
 ComfyUI (`tests/mock_comfy.py`). Node input names were checked against each node pack's source, but the
 models haven't been run.
+
+What's left to build or test: `docs/WORKFLOW_BACKLOG.md`.
 
 ## Guides for setting up on RunPod (written to paste into Gemini)
 

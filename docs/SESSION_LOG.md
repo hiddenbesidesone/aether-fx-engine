@@ -175,3 +175,10 @@ Paste the output to Claude.
   (3) W1 rider as a script (SeedVR2 + BiRefNet + `rider_rgba.py`), needing the rider clips (the Blender repo log says a clip library exists);
   (4) the full zoom when Blender re-renders it. Backlog: TRELLIS multi-view pod run, guide 04 (park unless needed), Foley for the film later.
   **Waiting on the user:** which to start.
+
+- **2026-11-25** · User asked to be told when the waiting is over; nothing is running (no pods, no jobs). We're waiting on the user's go-ahead
+  and on Blender (zoom frames 120–267, rider clips). Wrote **`docs/projects/police-bike/next_steps.md`** (ordered steps with owner: ComfyUI
+  vs Blender vs project, what's needed, decisions) for the Police Bike chat. Its role: that chat takes the recommendations and comes back for
+  tests/new workflows. Wrote **`docs/WORKFLOW_BACKLOG.md`** (A: built but GPU-untested, B: in docs but not built, C: recommended, plus an order).
+  README status table updated (02/03/05 verified) and linked to the backlog.
+  **Next:** user's call. The suggested order is Police Bike steps 1+3 (composite preview + 14B look pass), then the C1 sound-pass CLI, then a TRELLIS multi-view test.
