@@ -227,3 +227,9 @@ Paste the output to Claude.
   still show feet (5/5 seeds) → needs quality + negative or a matte; not run. Pod deleted. Pod time ~4.4 h ≈ $4.80; balance 21.90 → 15.02
   ($6.88; the difference is probably other pods or storage on the account, which the API key can't show).
   **Next:** the project chat picks from `output/flf-pb/picks/`; the baton (and any beacon-off reruns for walk-in/mount/gun-away) on the next pod.
+
+- **2026-11-25 ~14:40 UTC** · The project chat sent `blender-lab-police-bike/docs/pieces/police-bike-comfyui-requests.md`: R1 (T1–T3 worlds at strength 1.0
+  on the re-rendered `loop`, 768×432 with skyline + `rider_` pass, then the best on `zoom`; ~$1.50, cap $3), R2 closed (no baton/beacon reruns; the
+  first-person walks move to Google's video models, beacon fixed in comp), R3 (SeedVR2 + green_key/BiRefNet/MatAnyone + rider_rgba on `fixed/`
+  ride-idle 360f, ride-jump 192f, ride-look-camera 192f; quote first). Inputs checked, all present. Quoted R1 ~1.5 h ≈ $1.70; R3 ~1.5 h ≈ $1.70;
+  both on one pod ~2.75 h ≈ $3. Noted: the clips are already 1080, so SeedVR2 restores at the same size rather than upscaling (identity risk). **Waiting for go.**
