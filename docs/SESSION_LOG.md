@@ -223,3 +223,7 @@ Paste the output to Claude.
   reduced to a one-frame flicker; baton still has feet). Quality + negative (`feet, shoes, legs, floor, glow, halo, outline`) fixed spoon and glock (~28 min each).
   Wrote `docs/projects/police-bike/flf_batch_2026-11-25.md`, `output/flf-pb/picks/` (one per clip), SOP 02 note (fast ignores negatives → seed, then quality+neg).
   **Still running:** visor-down-idle quality + beacon negative; baton seeds 3/11/23. Then delete the pod.
+  **Finished ~14:20 UTC:** visor-down-idle quality + beacon negative → beacons off throughout (now the pick). Baton fast seeds 3/11/23 all
+  still show feet (5/5 seeds) → needs quality + negative or a matte; not run. Pod deleted. Pod time ~4.4 h ≈ $4.80; balance 21.90 → 15.02
+  ($6.88; the difference is probably other pods or storage on the account, which the API key can't show).
+  **Next:** the project chat picks from `output/flf-pb/picks/`; the baton (and any beacon-off reruns for walk-in/mount/gun-away) on the next pod.
