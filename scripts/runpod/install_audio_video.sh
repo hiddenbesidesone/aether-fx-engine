@@ -6,7 +6,7 @@
 #   bash scripts/runpod/install_audio_video.sh video      # VideoHelperSuite, MMAudio (Foley), Yvann audio-reactive
 #   bash scripts/runpod/install_audio_video.sh yvann-deps # extra packs the Yvann example workflows use
 #   bash scripts/runpod/install_audio_video.sh previz     # Blender previz -> AnimateDiff video (render_blender_video.py)
-#   bash scripts/runpod/install_audio_video.sh police-bike # Wan VACE world, SeedVR2 upscale, BiRefNet matte
+#   bash scripts/runpod/install_audio_video.sh police-bike # Wan VACE world, start/end-frame video, SeedVR2 upscale, RIFE, BiRefNet matte
 #   bash scripts/runpod/install_audio_video.sh matanyone   # optional second matting node (Police Bike Workflow 1)
 #   bash scripts/runpod/install_audio_video.sh all
 #
@@ -70,6 +70,7 @@ case "$GROUP" in police-bike)
     node ComfyUI-VideoHelperSuite      https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git
     node ComfyUI-KJNodes               https://github.com/kijai/ComfyUI-KJNodes.git
     node ComfyUI-SeedVR2_VideoUpscaler https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git
+    node ComfyUI-Frame-Interpolation   https://github.com/Fannovel16/ComfyUI-Frame-Interpolation.git  # RIFE (render_flf_video.py)
     node ComfyUI-RMBG                  https://github.com/1038lab/ComfyUI-RMBG.git
     mkdir -p "$COMFY_DIR/models/diffusion_models" "$COMFY_DIR/models/text_encoders" "$COMFY_DIR/models/vae" \
              "$COMFY_DIR/models/SEEDVR2"

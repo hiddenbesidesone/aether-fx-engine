@@ -27,7 +27,7 @@ Format: date/time · what was asked · what was done · state / next step.
 | 02 | Audio: Stable Audio / MusicGen / Demucs | ✅ **verified by Claude** on a throwaway A40 (2026-11-24): all 3 CLIs work; HF login on the Mac (`~/.venvs/hf`, user gou-hb1) |
 | 03 | Video Foley + audio-reactive | ✅ **Part A (Foley CLI) + Part B (Yvann Text-to-Video) both verified** on fresh A40 pods (2026-11-23) |
 | 04 | Blender previz → video (AnimateDiff + ControlNet) | ⬜ ready; general route. Police Bike uses 05 instead |
-| 05 | **Police Bike** (Wan VACE world, rider matte, composite) | ✅ **W2 go/no-go passed** (2026-11-24, 14B). W1 (rider) and W3 still to run. Status for the Blender side: `docs/projects/police-bike/aether_side_status.md` |
+| 05 | **Police Bike** (Wan VACE world, rider matte, composite) | ✅ **W2 go/no-go passed** (2026-11-24, 14B); look pass + W3 composite preview done (2026-11-25). W1 (rider) still to run. Status for the Blender side: `docs/projects/police-bike/aether_side_status.md` |
 
 Known risk for 04: `controlnet_aux` requirements may change numpy/onnxruntime; guide Step 3 stops if so.
 Paste the output to Claude.
@@ -182,3 +182,20 @@ Paste the output to Claude.
   tests/new workflows. Wrote **`docs/WORKFLOW_BACKLOG.md`** (A: built but GPU-untested, B: in docs but not built, C: recommended, plus an order).
   README status table updated (02/03/05 verified) and linked to the backlog.
   **Next:** user's call. The suggested order is Police Bike steps 1+3 (composite preview + 14B look pass), then the C1 sound-pass CLI, then a TRELLIS multi-view test.
+
+- **2026-11-25 ~01:20–03:58 UTC** · User: proceed with Police Bike steps 1+3 (the project chat is on step 2), agreed the order → C1 sound pass → TRELLIS
+  multi-view → C2/C3, and urgently wants **start + end frame → 1080 video**. **Step 1 (local, free):** the loop composite (14B neon world × shadow
+  + rider cut from beauty by matte) in `output/comp-preview-loop/`; lines up; the rider's daylight vs night world → relight needed.
+  **Pod: L40S $1.09/hr, EU→US-TX-4, ~2.4 h, $3.76.** Exported ComfyUI's official `video_wan2_2_14B_flf2v` and `video_ltx2_3_flf2v` templates
+  through the real frontend (Playwright: load → `graphToPrompt`) → API JSON. Tests on `home.png` (start = end): Wan 2.2 fast 3 min 720p16 clean; LTX 2.3
+  3 min native 1080p24 **but a hallucinated TV-style logo**, 1920×1056, and the distilled cfg 1 ignores negatives → not default.
+  Wan quality 20 steps ≈ 25 min (76 s/it). **I killed the first quality run by restarting ComfyUI to load RIFE** (~$0.50 lost).
+  **Built `render_flf_video.py`** + `flf_wan22_api.json` / `flf_wan22_fast_api.json` (generated from the exports: titled, + SeedVR2 7B fp8 →
+  RIFE rife49 x3 → every 2nd → VHS 24 fps), `download_models.sh flf-wan22|flf-ltx23`, 13 tests (95 pass), SOP 02, committed `2412bb6`.
+  End to end: fast **7 min → 1920×1080, 24 fps, 121 frames**; quality 29 min; fast had as much motion → recommended. RIFE needs
+  `ComfyUI-Frame-Interpolation` (via safe_node_install; not in an installer group yet). Drop folder: `inputs/flf/<clip>/start.png [end.png] prompt.txt`.
+  **Step 3 look pass** (VACE 14B, L40S ~12 min/pass): neon 0.7 ≈ 1.2 (strength barely matters; the richer prompt brightened it), watercolour
+  works but boxes stay boxes, synthwave excellent; single-frame jumps in 2 of 4. Results in `output/look-pass/` (+ `look_grid_4.mp4`).
+  Updated `aether_side_status.md` + `next_steps.md` (relight moves up; greybox shapes for organic worlds; rider clips can be generated).
+  Gotcha: on the pod, `nohup … & disown` with `< /dev/null` still held the ssh open sometimes; harmless.
+  **Next:** C1 sound pass per the agreed order; add Frame-Interpolation to an installer group; IC-Light relight test when the project asks.

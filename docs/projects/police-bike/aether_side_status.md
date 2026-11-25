@@ -71,3 +71,33 @@ $0.20 per 89-frame 14B pass on an A40 (~21 min); a 1.3B pass is ~5 min.
   geometry (a skyline layer, far buildings) in the depth would give it something to paint.
 - Next tests on the ComfyUI side: a strength sweep (0.6/0.8/1.0/1.2) at 14B, richer prompts (materials, light,
   colour), a `--reference-image` for style, and `env_####.png` as a second control if strength alone isn't enough.
+
+## Update 2026-11-25: composite preview, look pass, rider clips
+
+**Composite preview (W3, step 1): done.** `loop` with the 14B neon world × `shadow` and the rider cut from `beauty` by
+`matte` (`output/comp-preview-loop/`, shadow 0.6 and 0.85). Everything lines up and the loop holds. **The big gap:** the
+rider is lit for a bright daytime studio and the world is dark neon night, so he looks pasted on. Relighting the rider
+(IC-Light, brief "Later") should move up to the fundamentals.
+
+**Look pass (step 3): done**, 14B on `loop`, seed 42, on an L40S (~12 min per 89-frame pass; about 2× the A40).
+
+| Run | Result |
+|---|---|
+| neon, strength 0.7, richer prompt | Brighter (avg 40/255 vs 26 before), more surface detail, a believable skyline; layout holds; seamless wrap |
+| neon, strength 1.2, same prompt | **Nearly identical to 0.7**, slightly more window detail |
+| watercolour forest road, 1.0 | **A completely different world works** on the same greybox: bright, painted. But the building boxes become green *boxes*, not trees. One jump around frame 8 |
+| 1980s synthwave, 1.0 | Excellent: magenta grid road, setting sun, chrome blocks. One jump around frame 53 |
+
+**What this means for the project:**
+
+1. **Strength isn't the lever; the prompt is.** Keep `--strength 1.0` and write rich prompts: materials, light, colour,
+   distance (e.g. "glowing pink and cyan signs, wet asphalt reflections, distant skyline").
+2. **The greybox shapes come through in every world.** Boxes stay boxes. For organic worlds (forest, underwater), either
+   block out matching shapes in Blender (tree masses, rocks), or test a lower strength (~0.5) for those sections.
+3. Watch for the occasional single-frame jump (2 of 4 runs). A different seed, or re-running only that chunk, fixes it.
+
+**New: rider clips can now be made in ComfyUI.** `scripts/render_flf_video.py` (SOP `docs/sop/02_…`): start
+frame = end frame = `home.png` + a prompt ("he turns his head to the camera, nods, looks ahead again") gives a
+**1920×1080, 24 fps, 5 s clip that returns to the home pose**, on green, in ~7 min (fast mode). Tested on `home.png`: the action
+worked and the last frame matches the first closely. That's the brief's home-pose rule, in-house and repeatable. Fast mode matched
+the 20-step quality mode on this clip. Watch faces: the 1080 upscale adds detail and can shift the face slightly.

@@ -31,8 +31,8 @@ Times are for one 5 s clip on an **L40S** (48 GB, ~$1.09/hr), including the upsc
 
 | Mode | Flag | Time | Use for |
 |---|---|---|---|
-| **Fast** | `--fast` | ~7 min | Most clips. 4-step LightX2V LoRAs: clean, slightly less lively motion |
-| **Quality** | (default) | ~30 min | Hero shots with a lot of motion. 20 steps |
+| **Fast** (recommended) | `--fast` | ~7 min | Most clips. 4-step LightX2V LoRAs. In the rider test it matched quality (same action, as much motion) |
+| **Quality** | (default) | ~30 min | Try when fast looks stiff on big motion. 20 steps |
 
 Wan itself renders about 3 min (fast) or 25 min (quality); the rest is the upscale (SeedVR2 7B) and the interpolation.
 
@@ -55,8 +55,7 @@ Options worth knowing:
 | Same result again | keep `--seed` |
 | Variations | change `--seed` |
 
-**Server setup** (fresh pod): `install_audio_video.sh police-bike` (VHS, KJNodes, SeedVR2) +
-`safe_node_install.sh ComfyUI-Frame-Interpolation https://github.com/Fannovel16/ComfyUI-Frame-Interpolation.git`,
+**Server setup** (fresh pod): `install_audio_video.sh police-bike` (VHS, KJNodes, SeedVR2, RIFE frame interpolation),
 then `download_models.sh flf-wan22` (~38 GB). SeedVR2 and RIFE weights download themselves on first use.
 
 ## 4. Check
