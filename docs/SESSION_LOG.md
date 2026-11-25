@@ -166,3 +166,12 @@ Paste the output to Claude.
   Wrote `docs/projects/police-bike/aether_side_status.md` for the Blender chat. Results + side-by-side MP4s in `output/test-05-world/` (not in git).
   Pod deleted. Gotcha: `ssh … 'nohup …&'` holds the ssh open unless the outer stdout is redirected too.
   **Next:** the full zoom render from Blender; a 14B strength sweep + richer prompt / reference image; W1 rider needs rider clips.
+
+- **2026-11-25** · User: the zoom results look great; sharing `aether_side_status.md` with the main Police Bike chat. Asked what "full zoom" meant:
+  Blender's `zoom.log` stops partway through frame 120, so the preview render was **interrupted** (119/267 frames, the first ~5 s of the
+  pull-back); added that to the status doc. Recommended next steps (in order): (1) a free local W3 composite preview of the loop
+  (14B world × shadow + the rider cut from `beauty` with `matte`); (2) a 14B look pass on the loop (~$1–1.5: strength 0.7/1.0/1.2 + 2 other
+  worlds from the brief, e.g. watercolour forest / synthwave grid) to fix the flat wide shots and prove the "new world per section" idea;
+  (3) W1 rider as a script (SeedVR2 + BiRefNet + `rider_rgba.py`), needing the rider clips (the Blender repo log says a clip library exists);
+  (4) the full zoom when Blender re-renders it. Backlog: TRELLIS multi-view pod run, guide 04 (park unless needed), Foley for the film later.
+  **Waiting on the user:** which to start.

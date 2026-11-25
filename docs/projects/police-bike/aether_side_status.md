@@ -35,7 +35,9 @@ used for side-by-side checks; `shadow/` (+ the placed rider) for the composite.
 Current files used for this test (from `blender-lab-police-bike/renders/previews/police_bike/`, 960×540):
 
 - `loop`: 89 frames, complete.
-- `zoom`: **only 119 of the 267 frames are rendered.** The test ran on those 119. A full zoom render is needed for the 30× pull-back check.
+- `zoom`: **only 119 of the 267 frames are rendered.** `zoom.log` stops partway through frame 120 (sample 1/16), so the
+  render looks interrupted rather than finished. The test ran on those 119 (~5 s, the start of the pull-back). Re-render
+  frames 120–267 (all passes) for the widest part of the 30× pull-back.
 
 ## Test results (go/no-go, guide 05 Step 8)
 
