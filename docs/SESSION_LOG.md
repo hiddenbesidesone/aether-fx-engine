@@ -214,3 +214,12 @@ Paste the output to Claude.
   sweep not run yet, ~$3 on an L40S, waiting for a go; `loop` predates the skyline; keying ask: supply RGBA from the green clip, never re-cut
   from `beauty`; W1 can start on the 3 named clips). No pod used, $0.
   **Next:** the user's go on the T1–T3 sweep + W1 pod session; the user is preparing FLF start/end frames; C1 sound pass after.
+
+- **2026-11-25 ~10:00–13:40 UTC** · User: run the 11 Police Bike start/end-frame tests (`inputs/flf/pb_*`, prepared by the project chat; fast mode,
+  quality if walk-in/mount look stiff). **Pod: L40S $1.09/hr, US-NC-1.** Setup 13 min. 11 clips fast seed 42, ~6 min each, no failures.
+  The Mac disk filled up during the download (ENOSPC, even for tool output). The user freed space, and the pod waited (billing). Results:
+  walk-in, mount, gun-away, tp-walk, hairdryer, rat, tazer good (walk-in/mount not stiff → no quality rerun). **Beacons light up blue** in the bike clips,
+  **sneakers pop in** on fp baton/spoon, **halo** round the glock. **Fast mode = cfg 1, so negatives are ignored.** Seed 7 fixed spoon and glock (beacon
+  reduced to a one-frame flicker; baton still has feet). Quality + negative (`feet, shoes, legs, floor, glow, halo, outline`) fixed spoon and glock (~28 min each).
+  Wrote `docs/projects/police-bike/flf_batch_2026-11-25.md`, `output/flf-pb/picks/` (one per clip), SOP 02 note (fast ignores negatives → seed, then quality+neg).
+  **Still running:** visor-down-idle quality + beacon negative; baton seeds 3/11/23. Then delete the pod.

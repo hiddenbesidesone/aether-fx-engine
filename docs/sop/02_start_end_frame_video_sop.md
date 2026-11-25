@@ -32,7 +32,11 @@ Times are for one 5 s clip on an **L40S** (48 GB, ~$1.09/hr), including the upsc
 | Mode | Flag | Time | Use for |
 |---|---|---|---|
 | **Fast** (recommended) | `--fast` | ~7 min | Most clips. 4-step LightX2V LoRAs. In the rider test it matched quality (same action, as much motion) |
-| **Quality** | (default) | ~30 min | Try when fast looks stiff on big motion. 20 steps |
+| **Quality** | (default) | ~30 min | Try when fast looks stiff on big motion, or when something must be kept out (below). 20 steps |
+
+**Fast mode ignores `--negative`** (its LoRAs run at cfg 1). When a fast clip has an unwanted extra (feet in a first-person walk,
+a glow round an object, a police beacon switching on), first try **another `--seed`** (~6 min). If that doesn't fix it, use
+**quality mode with a `--negative`** naming it. That fixed both cases in the Police Bike batch (2026-11-25).
 
 Wan itself renders about 3 min (fast) or 25 min (quality); the rest is the upscale (SeedVR2 7B) and the interpolation.
 
