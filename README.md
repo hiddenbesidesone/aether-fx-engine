@@ -10,12 +10,12 @@ CLIs that run on the pod or on a Mac.
 |---|---|---|
 | Stylized LivePortrait (image + driving video → talking clip) | `scripts/run_stylized_liveportrait.py` | ✅ **Tested on RunPod.** Setup quirks: `docs/runpod_comfyui_liveportrait_setup_guide.md` |
 | Concept image(s) → 3D mesh `.glb` + Gaussian splat `.ply` (TRELLIS) | `scripts/generate_3d_asset.py`, then `scripts/blender/tidy_trellis_asset.py` | ✅ **Tested on RunPod (L40S)**: single-view mesh (`fast` + `opt` 2048 texture) and splat. 🟡 Multi-view (several images / turntable folder) mock-tested only. Not yet tried on Blackwell. SOP: `docs/sop/01_…` |
-| Music / soundscapes (Stable Audio Open, MusicGen) + Demucs stems | `scripts/generate_audio.py`, `scripts/separate_stems.py` | ✅ **Tested on RunPod (A40, 2026-11-24).** Guide: `docs/gemini/02_…` |
-| Foley / ambience from video (MMAudio), muxed into the MP4 | `scripts/add_foley.py` | ✅ **Tested on RunPod (A40, 2026-11-24).** Defaults: cfg 6.5 + noise-blocking negative. Guide: `docs/gemini/03_…` |
-| Audio-reactive animation (Yvann nodes + AnimateDiff) | Yvann's example workflows in the ComfyUI UI | ✅ Text-to-Video example **tested on RunPod**; no CLI. Guide: `docs/gemini/03_…` |
+| Music / soundscapes (Stable Audio Open, MusicGen) + Demucs stems | `scripts/generate_audio.py`, `scripts/separate_stems.py` | ✅ **Tested on RunPod (A40, 2026-11-24).** Guide: `docs/gemini/02_…`, SOP: `docs/sop/04_…` |
+| Foley / ambience from video (MMAudio), muxed into the MP4 | `scripts/add_foley.py` | ✅ **Tested on RunPod (A40, 2026-11-24).** Defaults: cfg 6.5 + noise-blocking negative. Guide: `docs/gemini/03_…`, SOP: `docs/sop/03_…` |
+| Audio-reactive animation (Yvann nodes + AnimateDiff) | Yvann's example workflows in the ComfyUI UI | ✅ Text-to-Video example **tested on RunPod**; no CLI. Guide: `docs/gemini/03_…`, SOP: `docs/sop/05_…` |
 | Blender previz (depth/normal passes, or a clay viewport render) → AnimateDiff video | `scripts/render_blender_video.py` | 🟡 Built, mock-tested; not yet run on a GPU. Guide: `docs/gemini/04_…` |
-| Depth sequence → AI world PNGs, frame for frame (Wan 2.1 VACE; chunks, seamless loops, prompt schedule) | `scripts/render_world_vace.py` | ✅ **Go/no-go passed on RunPod (A40, 14B, 2026-11-24).** Guide: `docs/gemini/05_…` |
-| Green-screen rider → RGBA with despill; world × shadow + rider composite | `scripts/rider_rgba.py`, `scripts/composite_shot.py` | 🟢 Tested locally (plain Python). Guide: `docs/gemini/05_…` |
+| Depth sequence → AI world PNGs, frame for frame (Wan 2.1 VACE; chunks, seamless loops, prompt schedule) | `scripts/render_world_vace.py` | ✅ **Go/no-go passed on RunPod (A40, 14B, 2026-11-24).** Guide: `docs/gemini/05_…`, SOP: `docs/sop/06_…` |
+| Green-screen rider → soft key → RGBA with despill; world × shadow + rider composite | `scripts/green_key.py`, `scripts/rider_rgba.py`, `scripts/composite_shot.py` | 🟢 Tested locally (plain Python; soft key on `ride-idle`, 2026-11-25). SOP: `docs/sop/06_…` |
 | **Start frame + end frame → 1080p 24 fps video** (Wan 2.2 14B FLF → SeedVR2 → RIFE) | `scripts/render_flf_video.py` | ✅ **Tested on RunPod (L40S, 2026-11-25)**: fast ~7 min, quality ~30 min per 5 s clip. SOP: `docs/sop/02_…` |
 | Batch SDXL brand restyle (LoRA + IP-Adapter + depth) | `scripts/run_brand_stylizer.py` | 🟡 Built, mock-tested; not yet run on a GPU |
 | Hunyuan3D-2 mesh (alternative 3D engine) | `scripts/generate_3d_asset.py --engine hunyuan` | 🟡 Built, mock-tested; no install guide yet |
@@ -44,6 +44,12 @@ What's left to build or test: `docs/WORKFLOW_BACKLOG.md`.
 |---|---|
 | `docs/sop/01_image_to_kitbash_asset_sop.md` | Image(s) or Blender turntable → TRELLIS (single or multi-view) → tidy → Blender kitbash asset + splat |
 | `docs/sop/02_start_end_frame_video_sop.md` | Start (+ end) frame + prompt → 1080p 24 fps clip; fast vs quality; LTX 2.3 notes |
+| `docs/sop/03_foley_sound_pass_sop.md` | Video clip → Foley (with/without prompt) + Stable Audio stereo bed → rough mix |
+| `docs/sop/04_music_soundscape_stems_sop.md` | Text → ambience / scratch beat; any track → 4 stems; which engine for what |
+| `docs/sop/05_audio_reactive_video_sop.md` | Track → beat-driven AnimateDiff video (Yvann, in the ComfyUI UI) |
+| `docs/sop/06_blender_depth_to_ai_world_sop.md` | Blender greybox depth → AI world frame for frame → keyed subject + shadow composite |
+
+No SOP yet: LivePortrait (setup guide only; ask if it's still in use) and the 🟡 workflows above (SOPs follow a GPU test).
 
 ## Layout
 

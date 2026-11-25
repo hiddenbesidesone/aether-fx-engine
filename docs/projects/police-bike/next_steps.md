@@ -19,7 +19,7 @@ workflows on a throwaway RunPod GPU and reports back. Come back to the ComfyUI s
 | # | Who | Step | Needs from the project | Output |
 |---|---|---|---|---|
 | 1 ✅ | **[ComfyUI]** | **Composite preview of `loop`** (done 2026-11-25; see status, "Update"): the 14B neon world × `shadow`, with the rider cut from `beauty` by `matte`. Free, runs on the Mac. | Nothing (uses the existing preview passes) | `loop` as an actual shot, to judge the overall look |
-| 2 | **Blender** | **Re-render `zoom` frames 120–267** (all five passes). The preview render stopped partway through frame 120. While doing it, consider **distant geometry** (a skyline or far-building layer) for the wide framings, so the depth isn't mostly empty sky. | — | The full 267-frame `zoom` |
+| 2 ✅ | **Blender** | **Re-render `zoom` frames 120–267** (done 2026-11-25, with the skyline layer) (all five passes). The preview render stopped partway through frame 120. While doing it, consider **distant geometry** (a skyline or far-building layer) for the wide framings, so the depth isn't mostly empty sky. | — | The full 267-frame `zoom` |
 | 3 ✅ | **[ComfyUI]** | **Look pass at 14B on `loop`** (done 2026-11-25: strength barely matters, prompts do; see status) (~$1–1.5): strength 0.7 / 1.0 / 1.2, plus 2–3 other worlds, with an optional style reference image. Then the full `zoom` at the best setting. | **The list of worlds per music section** (a short prompt each) and any **style reference images** | A recommended strength + a prompt pattern; proof that different worlds work on the same greybox |
 | 4 | **Project** | **Pick the rider clips**, or **have them generated in ComfyUI**: `home.png` → 1080p24 home-pose clips via `render_flf_video.py` (send a list of actions as prompts) (home-pose clips, 24 fps mp4) to test. 2–3 is enough, including one with spokes or windscreen clearly visible. | — | Clips handed to the ComfyUI side |
 | 5 | **[ComfyUI]** | **Build W1 as a script**: SeedVR2 upscale (same settings for every clip) → matte (BiRefNet vs MatAnyone, keep whichever flickers least) → despill to RGBA. Test on the clips from step 4. | Step 4 | Batch rider CLI + RGBA sequences |
@@ -32,6 +32,26 @@ workflows on a throwaway RunPod GPU and reports back. Come back to the ComfyUI s
 - **Relight the rider (IC-Light) moves up**: the composite shows a daylight rider over a night world. **[ComfyUI]** builds and tests it on the `loop` composite.
 - **Greybox for organic worlds**: boxes stay boxes. Block out tree/rock masses for forest-type sections, or ask **[ComfyUI]** to test strength ~0.5 there.
 - **Rider actions list**: if the clips will be generated, send short action prompts (nod, wave, look back, visor down...) to **[ComfyUI]**.
+
+## Where the ComfyUI side is (2026-11-25, later): read this first
+
+- **Received:** `docs/pieces/police-bike-world-prompts.md` (T1 motorway, T2 shop parade, T3 game level; rider clips
+  ride-idle / ride-jump / ride-look-camera), and the full 267-frame `zoom` with the skyline layer.
+- **Not run yet:** the T1–T3 sweep. The step 3 look pass used our own worlds (neon, watercolour, synthwave) before your
+  prompts arrived. Next pod session: T1–T3 × strength 0.7 / 1.0 / 1.2 on `loop` (9 renders, side by side with `beauty`),
+  then the best on the full `zoom`. About 2.5 h on an L40S, **~$3**. Waiting on the user's go.
+  Note: the `loop` passes date from 2026-11-18, so `loop` has no skyline layer; re-render `loop` first if you want it in the sweep.
+- **Keying (new):** the first composite cut the rider from `beauty` with Blender's `matte`. That gave a hard edge and
+  green fringes. Keying the **original green-screen clip** with a soft key (`scripts/green_key.py`) plus `rider_rgba.py`
+  is much cleaner. Tested on 24 frames of `ride-idle`, free on the Mac (`output/key-test/` on the ComfyUI side). It keeps
+  the hi-vis and the black parts solid, lets the windscreen and the spokes show through, and drops the green shadow on the floor.
+  Left: some green in the motion-blurred spokes (the W1 AI matte should fix it), and the **Gemini sparkle watermark**
+  in the library clips' bottom-right corner keys as subject, so use the `fixed/` versions or crop it.
+  **Ask for the Blender side:** supply the rider as the keyed RGBA from the green-screen clip (or the clip itself),
+  never re-cut from `beauty`. The full method is in SOP 06 (`docs/sop/06_blender_depth_to_ai_world_sop.md`).
+- **Step 5 (W1) can start** on the three named clips: AI matte vs `green_key.py` on ride-idle / ride-jump /
+  ride-look-camera, plus the identity check on the face after SeedVR2. Use the `fixed/` versions once they exist
+  (so far only `ride-visor-up`).
 
 ## Decisions for the project chat
 

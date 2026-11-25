@@ -199,3 +199,18 @@ Paste the output to Claude.
   Updated `aether_side_status.md` + `next_steps.md` (relight moves up; greybox shapes for organic worlds; rider clips can be generated).
   Gotcha: on the pod, `nohup … & disown` with `< /dev/null` still held the ssh open sometimes; harmless.
   **Next:** C1 sound pass per the agreed order; add Frame-Interpolation to an installer group; IC-Light relight test when the project asks.
+
+- **2026-11-25 ~09:20–10:10 UTC** · User: the keying in the composite looks bad, can it be improved? The Police Bike chat shared
+  `docs/pieces/police-bike-world-prompts.md` (T1–T3 worlds, step 4 rider clips) but doesn't know where we are. Also: which ComfyUI
+  workflows lack an SOP (Foley and the other audio?). **Keying:** the composite cut the rider from Blender's `beauty` with a binary
+  `matte` at 960×540, which gave a hard edge plus the original key's green fringes. Re-keyed the **original 1080 green-screen** `ride-idle`
+  (24 frames) on the Mac: a colour-difference key on green *relative to brightness* (the shadowed screen keys too) with guards for
+  near-black and anything reddish (hi-vis stays solid), then `rider_rgba.py --edge 5 --tolerance 0.45`, plus a 1 px choke. Clean
+  outline, see-through windscreen and spokes, no floor blob; some green remains in the motion-blurred spokes. Source clips carry a Gemini
+  sparkle watermark (bottom right). Made it **`scripts/green_key.py`** (+2 tests, 97 pass). Results in `output/key-test/`
+  (`old_vs_new.mp4`, `new_softkey_1080.mp4`, stills). **SOPs written:** 03 Foley + bed + rough mix (ffmpeg mix recipe verified: −16.8 LUFS
+  stereo), 04 music/soundscape/stems, 05 audio-reactive (Yvann UI), 06 Blender depth → AI world → keyed composite. README links them;
+  LivePortrait has a setup guide but no SOP. `next_steps.md`: zoom ✅ (full 267 with skyline), a "where the ComfyUI side is" section (T1–T3
+  sweep not run yet, ~$3 on an L40S, waiting for a go; `loop` predates the skyline; keying ask: supply RGBA from the green clip, never re-cut
+  from `beauty`; W1 can start on the 3 named clips). No pod used, $0.
+  **Next:** the user's go on the T1–T3 sweep + W1 pod session; the user is preparing FLF start/end frames; C1 sound pass after.

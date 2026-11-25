@@ -3,6 +3,7 @@ import pytest
 from PIL import Image
 
 import composite_shot
+import green_key
 import rider_rgba
 
 SCREEN = np.array([60, 170, 80], dtype=np.float32)
@@ -77,3 +78,26 @@ def test_composite_shot(tmp_path):
     assert tuple(px[5, 5]) == (200, 100, 50)              # world, no shadow
     assert abs(px[33, 5, 0] - 100) <= 1                   # world x 0.5 shadow
     assert tuple(px[15, 31]) == (10, 20, 30)              # rider on top
+
+
+def test_green_key_keys_lit_and_shadowed_screen_but_keeps_hivis_and_black(tmp_path):
+    colours = {"screen": (25, 153, 80), "shadowed screen": (4, 34, 16), "hi-vis": (190, 230, 90),
+               "tyre": (12, 14, 12), "white helmet": (235, 240, 238)}
+    rgb = np.array([[c for c in colours.values()]], dtype=np.float32)
+    alpha = dict(zip(colours, green_key.matte(rgb, 0.22, 0.38, 0.42)[0]))
+    assert alpha["screen"] == alpha["shadowed screen"] == 0
+    assert alpha["hi-vis"] == alpha["tyre"] == alpha["white helmet"] == 1
+
+
+def test_green_key_cli_writes_numbered_mattes(tmp_path):
+    src = tmp_path / "green"
+    src.mkdir()
+    img = np.zeros((32, 32, 3), np.uint8)
+    img[:] = (25, 153, 80)
+    img[8:24, 8:24] = (190, 230, 90)
+    for n in (7, 8):
+        Image.fromarray(img).save(src / f"f_{n:04d}.png")
+    assert green_key.main(["--frames", str(src), "--output", str(tmp_path / "m"), "--choke", "1"]) == 0
+    m = np.asarray(Image.open(tmp_path / "m" / "matte_0007.png"))
+    assert m[16, 16] == 255 and m[0, 0] == 0
+    assert (tmp_path / "m" / "matte_0008.png").exists()
