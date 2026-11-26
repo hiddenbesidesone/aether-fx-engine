@@ -101,3 +101,46 @@ frame = end frame = `home.png` + a prompt ("he turns his head to the camera, nod
 **1920×1080, 24 fps, 5 s clip that returns to the home pose**, on green, in ~7 min (fast mode). Tested on `home.png`: the action
 worked and the last frame matches the first closely. That's the brief's home-pose rule, in-house and repeatable. Fast mode matched
 the 20-step quality mode on this clip. Watch faces: the 1080 upscale adds detail and can shift the face slightly.
+
+## Update 2026-11-26: R1 (test worlds) and R3 (rider RGBA), answering `police-bike-comfyui-requests.md`
+
+One L40S pod, ~1.75 h, **$2.04** (quote ~$3: the SeedVR2 pass was dropped, see R3). All files on the Mac, not in git.
+
+### R1. T1–T3 on the new `loop`, then the best on `zoom`
+
+14B, strength 1.0, seed 42, your prompts and negative (no "illustration" in T3's negative), `--loop` on `loop`. ~12 min per loop, 28 min for the zoom.
+
+| World | Result |
+|---|---|
+| **T2 British parade** | **The strongest.** Real shopfronts: the chicken shop with the red backlit sign and white interior, shutters, a red phone box, flats above, a wet reflective road. **Shop identity holds across the seam**: the same shop with the same sign is in the same place at 89 → 1. The only world where the **skyline layer reads** (towers against the sky). |
+| **T3 abstract game level** | Works as a graphic level: flat black, cyan outlines, cyan spikes along the ground, outlined towers. The 3D greybox flattens fine at 1.0, so no special greybox is needed. |
+| **T1 night motorway** | The weakest: mostly black with sodium-orange glow and streaks. It reads as an underpass at night rather than "photographed". Needs a brighter prompt (more streetlights, lit lane markings, a visible skyline) before it's usable. |
+
+- **Single-frame jumps:** none found. The automatic check flagged frames, but they're fast-moving foreground (a near post, the skyline gap passing), not glitches. Worth one watch of the `_x3` files.
+- **`zoom` with T2** (267 frames, 4 chunks): the pull-back holds the layout, the chunk joins are clean, and **the wide end is now a night skyline** with lit windows and a row of lit shops, **not flat blue any more** (the skyline layer worked). Two things: the big flat ground in the lower half goes **almost black** at the wide end (give it lit kerbs, streetlights or road markings in the greybox, or prompt them), and the shopfronts **repeat the same chicken shop** many times along the street (vary the block widths/heights in the greybox, or use `--prompt-at` per section).
+
+**Files** (`aether-fx-engine/output/r1-worlds/`): `loop_<world>/world_####.png` (89 frames), `loop_<world>_vs_beauty.mp4`
+(world under `beauty`), `loop_<world>_x3.mp4` (loop played three times), `zoom_t2_parade/world_####.png` (267), `zoom_t2_parade_vs_beauty.mp4`.
+
+### R3. Rider RGBA from `fixed/` ride-idle, ride-jump, ride-look-camera
+
+**Result: use `green_key.py` + `rider_rgba.py` on the original clips, with no SeedVR2.** 744 RGBA frames, 1920×1080, same numbering
+as the clips (`rider_0001.png` = the clip's first frame), straight alpha.
+
+- **Matte: green_key beats BiRefNet.** I ran BiRefNet_HR (AI matte) on every frame. It **fills the wheels solid** (grey-green disc
+  where the spokes should show the background) and leaves a faint green rim on the tyres. green_key shows the background through
+  the spokes and the windscreen and keeps the hi-vis and black parts solid. MatAnyone wasn't needed. The BiRefNet mattes are kept
+  in case they're useful as a garbage mask later.
+- **SeedVR2: don't use it on the rider.** The clips are already 1080, so it can only re-detail at the same size. On 2 s of
+  `ride-look-camera` it made the **face more specific and photographic** (sharper eye, mouth lines, stubble), which is exactly the
+  identity risk. It also **garbles text** ("POLICE" → "POLIOE") and **warps the BMW roundel**. Kept as `seedvr_look_2s.mp4` for you to compare.
+- **Small things left:** the flipped-up visor on top of the helmet is clear plastic, so it keeps a faint mint tint. Fast-spinning
+  spokes may carry a trace of green in motion blur. Neither showed at preview size over the parade.
+
+**Files** (`aether-fx-engine/output/r3-rider/`): `<clip>/rgba/rider_####.png` (360 / 192 / 192), `preview_<clip>.mp4` (over a T2 frame),
+`seedvr_look_2s.mp4`.
+
+### What this unlocks
+
+- **R4 relight (IC-Light)** can start now: the RGBA is clean and T2 is the obvious first world to light him for.
+- First finished shot (`next_steps` step 7): T2 `loop` world × `shadow` + the placed rider RGBA, once Blender has placed it.

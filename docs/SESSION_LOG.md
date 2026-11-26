@@ -233,3 +233,13 @@ Paste the output to Claude.
   first-person walks move to Google's video models, beacon fixed in comp), R3 (SeedVR2 + green_key/BiRefNet/MatAnyone + rider_rgba on `fixed/`
   ride-idle 360f, ride-jump 192f, ride-look-camera 192f; quote first). Inputs checked, all present. Quoted R1 ~1.5 h ≈ $1.70; R3 ~1.5 h ≈ $1.70;
   both on one pod ~2.75 h ≈ $3. Noted: the clips are already 1080, so SeedVR2 restores at the same size rather than upscaling (identity risk). **Waiting for go.**
+
+- **2026-11-25 ~23:50 → 2026-11-26 ~01:45 UTC** · User: check the balance, then do R1 + R3 on one pod. Balance $34.81 (topped up). Only $0.015/hr standing: the 2 network volumes.
+  **Pod L40S US-NC-1, ~1.75 h, $2.04** (34.81 → 32.77). **R1:** T1/T2/T3 on the new `loop` (768×432, skyline) at 14B, strength 1.0, seed 42, ~12 min each:
+  T2 parade strongest (real shopfronts, shop identity holds across the seam, skyline reads); T3 good graphic level; T1 too dark. T2 on `zoom` (267, 28 min):
+  the wide end is a night skyline (no flat blue); the ground goes black at the wide end; the shopfronts repeat. No real single-frame jumps (flags = fast foreground).
+  **R3:** BiRefNet_HR (direct transformers on the pod) vs green_key: green_key wins (BiRefNet fills wheels, green rim). SeedVR2 at 1080 on 2 s of look-camera:
+  the face gets more photographic, text garbled, roundel warped → **dropped**. green_key + rider_rgba on all 744 frames: Mac too slow (~18 s/frame),
+  so moved to the pod CPUs, 24 workers, ~2 min; tar download. Results: `output/r1-worlds/`, `output/r3-rider/`. Report in `aether_side_status.md`
+  (Update 2026-11-26); SOP 06 notes. Gotcha: zsh doesn't split `$K` scp options → `pget.sh` wrapper.
+  **Next:** the project picks; R4 relight (IC-Light) is unblocked; C1 sound pass still queued.

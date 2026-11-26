@@ -72,6 +72,11 @@ python scripts/rider_rgba.py --frames green/ride_idle --matte matte/ride_idle \
 Watch for watermarks in generated source clips (the library clips have a sparkle in the bottom-right corner): it
 keys as subject. Use the project's `fixed/` versions, or crop it out.
 
+Tested on the Police Bike clips (2026-11-26): **green_key beats BiRefNet_HR** (BiRefNet fills wheels solid and leaves a green
+rim). **Don't run SeedVR2 on 1080 footage of a person**: at the same size it only re-details, and it made the face more photographic,
+garbled text and warped logos. On a 1080 clip, rider_rgba takes ~18 s/frame on the Mac (the edge filter is slow), so for long clips
+run it on a pod's CPUs in parallel (744 frames took ~2 min with 24 workers).
+
 Remaining weak spot: fast-spinning spokes mix with the screen; only an AI matte gets them fully clean. Relight the
 subject (IC-Light, not built yet) when the world's light differs a lot from the green-screen light.
 
