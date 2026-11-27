@@ -243,3 +243,19 @@ Paste the output to Claude.
   so moved to the pod CPUs, 24 workers, ~2 min; tar download. Results: `output/r1-worlds/`, `output/r3-rider/`. Report in `aether_side_status.md`
   (Update 2026-11-26); SOP 06 notes. Gotcha: zsh doesn't split `$K` scp options → `pget.sh` wrapper.
   **Next:** the project picks; R4 relight (IC-Light) is unblocked; C1 sound pass still queued.
+
+- **2026-11-27** · Resumed after a cut-off. User: this chat is now the workflow builder/sharer for **Police Bike and audio-lab**;
+  audio-lab's Claude (`../../audio-lab`, session audio-lab-76) will call. It sent **A1** (`audio-lab/docs/aether-requests.md`): stems for 5 tracks
+  (skeng + hb1-2 first), htdemucs_ft + BS-RoFormer→Demucs + htdemucs_6s, 24-bit WAV 44.1k, no normalising, cap $3, quote first.
+  Wrote `docs/projects/audio-lab/aether_side_status.md` with the quote: direct demucs + audio-separator on one pod (not ComfyUI; our
+  `separate_stems.py` is plain htdemucs, FLAC). ~1 h ≈ $0.50–1.10. Note: Demucs rescales clipping stems by default (= normalising), so write
+  float, check the sum, give float32 for any stem over 0 dBFS. Outputs → `audio-lab/_input/from-aether/stems/<model>/<track>/`. Quote sent to audio-lab-76.
+  **Waiting on:** the artist's go via audio-lab + the user's go for the pod.
+  **Done ~02:00–05:00 UTC.** Artist's go via audio-lab + user's go. Also took **A2** (Stable Audio textures, 6 prompts × 3 seeds) on the same pod.
+  RTX 4090 on `pytorch:1.0.3` stuck "awaiting container" ~20 min, no SSH port → deleted (~$0.35). A40 on `pytorch:1.0.2` + `--ports 22/tcp`.
+  demucs + audio-separator 0.48 (needs `audioread`; has `BS-Roformer-SW.ckpt` 6-stem). Post (`a1_post.py`, scratchpad): length exact, no stem
+  over 0 dBFS, sums are −20 to −29 dB residual (Demucs), −43 (SW) → added `residual.wav` so stems + residual == input. Picks: hb1-2 SW (synth lead
+  still shares `other` with chords; band-split ~1.2 kHz or a melody model), skeng/hb1-3/one-drop roformer+ft. Download ~0.5 MB/s; tar broke at
+  65 min → rest as FLAC → WAV on Mac; md5 of all 89 files matched. **$1.91** (19.13 → 17.22). Pod deleted. Report: `docs/projects/audio-lab/aether_side_status.md`.
+  The balance fell 32.77 → 19.13 between sessions without pods under this key (other chats?). Flagged to the user.
+  **Next:** audio-lab listens and picks; possible follow-up: lead/melody split of hb1-2 `other`.
